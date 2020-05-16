@@ -17,7 +17,7 @@ void init_shell()
     clear();
     printf("\n******************"
            "************************");
-    printf("\n\t******MSH*******");
+    printf("\n\t\t******MSH*******");
     printf("\n*******************"
            "***********************");
     clear();
@@ -66,7 +66,9 @@ int read_command(char *command, char *parameters[]) { // prompt for user input a
         if(command[i] == ' ')
             count++;
     }
-    count++;
+    if(strlen(command) > 0) {
+        count++;
+    }
     //split command by space
     char* parts = strtok(command, " ");
     //start parameters with the command
@@ -119,12 +121,12 @@ int main(int argc, char *argv[]) {
         }
         if (noParams == 0)
         {
-            fprintf(stderr, "no command ?!\n");
-            exit(1);
+            fprintf(stderr, "no command ?!");
+            //exit(1);
         }
-        if ((childPid = fork()) == -1)
+        else if ((childPid = fork()) == -1)
         { // create process
-            fprintf(stderr, "can't fork!\n");
+            fprintf(stderr, "can't fork!");
             exit(2);
         }
         //check if the command is cd
@@ -136,10 +138,11 @@ int main(int argc, char *argv[]) {
                 char* username;
                 username = getlogin();
                 char buf[256];
-                snprintf(buf, sizeof buf, "/home/%s", username);
+                //snprintf(buf, sizeof buf, "/home/%s", username);
                 chdir(buf);
+            } else {
+                chdir(parameters[1]);
             }
-            chdir(parameters[1]);
         }
         //check if the command is quit or exit
         else if (strcmp("quit", command) == 0 || strcmp("exit", command) == 0)
@@ -148,7 +151,7 @@ int main(int argc, char *argv[]) {
         }
         else if (childPid == 0) { // child process
             execvp(command, parameters);
-                perror("execution failed");
+            perror("execution failed");
             exit(3);
         }
         //search for a & to decidde if we should wait or nah
@@ -160,5 +163,5 @@ int main(int argc, char *argv[]) {
             }
         }
     }
-    exit(0);
+*+/*exit(0);
 }
