@@ -15,8 +15,9 @@ func main() {
 	// Check if we are in debug Modus
 	debugModus = isInDebugModus()
 
-	// Get a String array filled with the Instructions
-	// HALInstructions[0] = "00 Start"
+	// Get a Map filled with an array of instructions (strings)
+	// HALInstructions[2] = "[STORE, 8]"
+	// HALInstructions[2][0] = "STORE"
 	HALInstructions, fileError := readFile("HAL_Instructions")
 	if fileError != nil {
 		fmt.Println(fileError)
@@ -42,7 +43,7 @@ func isInDebugModus() bool {
 	}
 }
 
-func readFile(fileName string) ([]string, error) {
+func readFile(fileName string) (map[int][]string, error) {
 	// Read file content
 	file, err := os.Open(fileName)
 	if err != nil {
@@ -52,26 +53,27 @@ func readFile(fileName string) ([]string, error) {
 	// Close file when function returns something
 	defer file.Close()
 
-	// Fill the String array with the commands on the file
-	var lines []string
+	// Fill the Map with the commands on the file
+	commands := make(map[int][]string)
+
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		actualLine := scanner.Text()
 
 		// Check if first part of the line is a number
-		_, err := strconv.Atoi(strings.Split(actualLine, " ")[0])
+		num, err := strconv.Atoi(strings.Split(actualLine, " ")[0])
 		if err != nil {
 			//fmt.Println(err)
 			err = errors.New("HAL Instruction needs to beginn with a number")
 			return nil, err
 		}
 
-		lines = append(lines, actualLine)
+		commands[num] = strings.Split(actualLine, " ")[1:]
 	}
 
 	if err := scanner.Err(); err != nil {
 		return nil, err
 	}
 
-	return lines, nil
+	return commands, nil
 }
