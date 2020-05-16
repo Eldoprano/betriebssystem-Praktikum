@@ -8,6 +8,7 @@ import(
 	"os"
 	"strings"
 	"strconv"
+	"./HAL"
 )
 
 func main() {
@@ -19,9 +20,8 @@ func main() {
 	input := flag.String("input", "", "The HAL-Programm file")
 	flag.Parse()
 	m := readFile(input)
-	for key, value := range m {
-		println(key,value)
-	}
+
+	HAL.HalStart(m)
 }
 
 func readFile(input *string) map[int]string {
