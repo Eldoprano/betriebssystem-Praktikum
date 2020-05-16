@@ -2,8 +2,11 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"os"
+	"strconv" // Convert Strings to Int
+	"strings" // Split strings
 )
 
 var debugModus = false
@@ -15,9 +18,11 @@ func main() {
 	// Get a String array filled with the Instructions
 	// HALInstructions[0] = "00 Start"
 	HALInstructions, fileError := readFile("HAL_Instructions")
-	fmt.Println(HALInstructions)
-	fmt.Println(fileError)
-
+	if fileError != nil {
+		fmt.Println(fileError)
+	} else {
+		fmt.Println(HALInstructions[0])
+	}
 }
 
 func isInDebugModus() bool {
@@ -51,10 +56,22 @@ func readFile(fileName string) ([]string, error) {
 	var lines []string
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
+		actualLine := scanner.Text()
+
+		// Check if first part of the line is a number
+		_, err := strconv.Atoi(strings.Split(actualLine, " ")[0])
+		if err != nil {
+			//fmt.Println(err)
+			err = errors.New("HAL Instruction needs to beginn with a number")
+			return nil, err
+		}
+
+		lines = append(lines, actualLine)
 	}
+
 	if err := scanner.Err(); err != nil {
 		return nil, err
 	}
+
 	return lines, nil
 }
