@@ -25,7 +25,7 @@ func main() {
 		os.Exit(3)
 	}
 
-	interpret(true, HALInstructions)
+	interpret(debugModus, HALInstructions)
 
 }
 
@@ -98,8 +98,6 @@ func interpret(debugModus bool, instructions map[int][]string) {
 	register := make(map[int]float64)
 	inOut := make(map[int]float64)
 
-	register[1] = 2
-
 	for programmCounter < len(instructions) {
 		// Save actual instruction
 		actualInstruction := strings.ToUpper(instructions[programmCounter][0])
@@ -113,10 +111,13 @@ func interpret(debugModus bool, instructions map[int][]string) {
 			if debugModus {
 				fmt.Println("START-desu!")
 			}
+
 		case "STOP":
 			if debugModus {
 				fmt.Println("STOP-desu!")
 			}
+			break
+
 		case "OUT":
 			// Check if we got the second value
 			if len(instructions[programmCounter]) < 2 {
@@ -128,10 +129,6 @@ func interpret(debugModus bool, instructions map[int][]string) {
 
 			// Execute the instruction:
 			inOut[tempInt] = accumulator
-
-			if debugModus {
-				fmt.Println("OUT-desu!")
-			}
 
 		case "IN":
 			// Check if we got the second value
@@ -145,10 +142,6 @@ func interpret(debugModus bool, instructions map[int][]string) {
 			// Execute the instruction:
 			accumulator = inOut[tempInt]
 
-			if debugModus {
-				fmt.Println("IN-desu!")
-			}
-
 		case "LOAD":
 			// Check if we got the second value
 			if len(instructions[programmCounter]) < 2 {
@@ -160,10 +153,6 @@ func interpret(debugModus bool, instructions map[int][]string) {
 
 			// Execute the instruction:
 			accumulator = register[tempInt]
-
-			if debugModus {
-				fmt.Println("LOAD-desu!")
-			}
 
 		case "LOADNUM":
 			// Check if we got the second value
@@ -177,10 +166,6 @@ func interpret(debugModus bool, instructions map[int][]string) {
 			// Execute the instruction:
 			accumulator = tempFloat
 
-			if debugModus {
-				fmt.Println("LOADNUM-desu!")
-			}
-
 		case "STORE":
 			// Check if we got the second value
 			if len(instructions[programmCounter]) < 2 {
@@ -192,10 +177,6 @@ func interpret(debugModus bool, instructions map[int][]string) {
 
 			// Execute the instruction:
 			register[tempInt] = accumulator
-
-			if debugModus {
-				fmt.Println("STORE-desu!")
-			}
 
 		case "JUMPNEG":
 			// Check if we got the second value
@@ -213,10 +194,6 @@ func interpret(debugModus bool, instructions map[int][]string) {
 					os.Exit(3)
 				}
 				programmCounter = tempInt
-			}
-
-			if debugModus {
-				fmt.Println("JUMPNEG-desu!")
 			}
 
 		case "JUMPPOS":
@@ -237,10 +214,6 @@ func interpret(debugModus bool, instructions map[int][]string) {
 				programmCounter = tempInt
 			}
 
-			if debugModus {
-				fmt.Println("JUMPPOS-desu!")
-			}
-
 		case "JUMPNULL":
 			// Check if we got the second value
 			if len(instructions[programmCounter]) < 2 {
@@ -259,10 +232,6 @@ func interpret(debugModus bool, instructions map[int][]string) {
 				programmCounter = tempInt
 			}
 
-			if debugModus {
-				fmt.Println("JUMPNULL-desu!")
-			}
-
 		case "JUMP":
 			// Check if we got the second value
 			if len(instructions[programmCounter]) < 2 {
@@ -279,10 +248,6 @@ func interpret(debugModus bool, instructions map[int][]string) {
 			}
 			programmCounter = tempInt
 
-			if debugModus {
-				fmt.Println("JUMP-desu!")
-			}
-
 		case "ADD":
 			// Check if we got the second value
 			if len(instructions[programmCounter]) < 2 {
@@ -294,10 +259,6 @@ func interpret(debugModus bool, instructions map[int][]string) {
 
 			// Execute the instruction:
 			accumulator += register[tempInt]
-
-			if debugModus {
-				fmt.Println("ADD-desu!")
-			}
 
 		case "ADDNUM":
 			// Check if we got the second value
@@ -311,10 +272,6 @@ func interpret(debugModus bool, instructions map[int][]string) {
 			// Execute the instruction:
 			accumulator += tempFloat
 
-			if debugModus {
-				fmt.Println("ADDNUM-desu!")
-			}
-
 		case "SUB":
 			// Check if we got the second value
 			if len(instructions[programmCounter]) < 2 {
@@ -326,10 +283,6 @@ func interpret(debugModus bool, instructions map[int][]string) {
 
 			// Execute the instruction:
 			accumulator -= register[tempInt]
-
-			if debugModus {
-				fmt.Println("SUB-desu!")
-			}
 
 		case "MUL":
 			// Check if we got the second value
@@ -343,10 +296,6 @@ func interpret(debugModus bool, instructions map[int][]string) {
 			// Execute the instruction:
 			accumulator = accumulator * register[tempInt]
 
-			if debugModus {
-				fmt.Println("MUL-desu!")
-			}
-
 		case "DIV":
 			// Check if we got the second value
 			if len(instructions[programmCounter]) < 2 {
@@ -358,10 +307,6 @@ func interpret(debugModus bool, instructions map[int][]string) {
 
 			// Execute the instruction:
 			accumulator = accumulator / register[tempInt]
-
-			if debugModus {
-				fmt.Println("DIV-desu!")
-			}
 
 		case "SUBNUM":
 			// Check if we got the second value
@@ -375,10 +320,6 @@ func interpret(debugModus bool, instructions map[int][]string) {
 			// Execute the instruction:
 			accumulator -= tempFloat
 
-			if debugModus {
-				fmt.Println("SUBNUM-desu!")
-			}
-
 		case "MULNUM":
 			// Check if we got the second value
 			if len(instructions[programmCounter]) < 2 {
@@ -391,10 +332,6 @@ func interpret(debugModus bool, instructions map[int][]string) {
 			// Execute the instruction:
 			accumulator = accumulator * tempFloat
 
-			if debugModus {
-				fmt.Println("MULNUM-desu!")
-			}
-
 		case "DIVNUM":
 			// Check if we got the second value
 			if len(instructions[programmCounter]) < 2 {
@@ -406,14 +343,34 @@ func interpret(debugModus bool, instructions map[int][]string) {
 
 			// Execute the instruction:
 			accumulator = accumulator / tempFloat
-
-			if debugModus {
-				fmt.Println("DIVNUM-desu!")
-			}
 		}
-
+		if debugModus {
+			printStatus(programmCounter, accumulator, register, inOut)
+		}
 		programmCounter++
 	}
+
+	if !debugModus {
+		printStatus(programmCounter-1, accumulator, register, inOut)
+	}
+	//printStatus(programmCounter, accumulator, register, inOut)
+
+}
+
+func printStatus(programmCounter int, accumulator float64, register map[int]float64, inOut map[int]float64) {
+	fmt.Println(" ______________________________________________________")
+	fmt.Printf("| Programm Counter: %-8d| Accumulator: %-12.4f|\n", programmCounter, accumulator)
+	//fmt.Printf("|Programm Counter:", programmCounter)
+	//fmt.Println("|Accumulator:", accumulator)
+	for i := 0; i < len(inOut); i = i + 2 {
+		fmt.Printf("| I/O %d: %-19.4f| I/O %d: %-18.4f|\n", i, inOut[i], i+1, inOut[i+1])
+		//fmt.Println("|I/O", i, ":", inOut[i], "\t\tI/O", i+1, ":", inOut[i+1])
+	}
+	for i := 0; i < 16; i = i + 2 {
+		fmt.Printf("| Register %2d: %-13.4f| Register %2d: %-12.4f|\n", i, register[i], i+1, register[i+1])
+		//fmt.Println("|Register", i, ":", register[i], "\t\tRegister", i+1, ":", register[i+1])
+	}
+	fmt.Println(" ______________________________________________________")
 }
 
 func strToInt(str string) int {
