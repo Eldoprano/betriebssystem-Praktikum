@@ -2,3 +2,6 @@
 02 IN 1
 03 ADD other stuff
 04 STORE amazing things
+05 LOAD 12
+06 JUMPNEG 02
+07 STOP

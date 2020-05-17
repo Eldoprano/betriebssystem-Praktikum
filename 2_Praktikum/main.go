@@ -16,12 +16,12 @@ func main() {
 		fmt.Println("Not enough arguments specified")
 		return
 	}
-	flag.Bool("debug", false, "enables debug output")
+	d := flag.Bool("debug", false, "enables debug output")
 	input := flag.String("input", "", "The HAL-Programm file")
 	flag.Parse()
 	m := readFile(input)
 
-	HAL.HalStart(m)
+	HAL.HalStart(m, *d)
 }
 
 func readFile(input *string) map[int]string {
