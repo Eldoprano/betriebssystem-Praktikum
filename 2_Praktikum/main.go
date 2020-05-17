@@ -94,41 +94,16 @@ func readFile(fileName string) (map[int][]string, error) {
 func interpret(debugModus bool, instructions map[int][]string) {
 	// Variables
 	var programmCounter int = 0
-	var accumulator float32 = 0
-	register := make(map[int]float32)
-	inOut := make(map[int]float32)
+	var accumulator float64 = 0
+	register := make(map[int]float64)
+	inOut := make(map[int]float64)
 
 	register[1] = 2
 
-	// Create map
-	instrSET := make(map[string]string)
-	instrSET["START"] = "N"
-	instrSET["STOP"] = "N"
-	instrSET["OUT"] = "s"
-	instrSET["IN"] = "s"
-	instrSET["LOAD"] = "r"
-	instrSET["LOADNUM"] = "k"
-	instrSET["STORE"] = "r"
-	instrSET["JUMPNEG"] = "a"
-	instrSET["JUMPPOS"] = "a"
-	instrSET["JUMPNULL"] = "a"
-	instrSET["JUMP"] = "a"
-	instrSET["ADD"] = "r"
-	instrSET["ADDNUM"] = "k"
-	instrSET["SUB"] = "r"
-	instrSET["MUL"] = "a"
-	instrSET["DIV"] = "a"
-	instrSET["SUBNUM"] = "a"
-	instrSET["MULNUM"] = "a"
-	instrSET["DIVNUM"] = "a"
-
 	for programmCounter < len(instructions) {
+		// Save actual instruction
 		actualInstruction := strings.ToUpper(instructions[programmCounter][0])
 
-		if instrSET[actualInstruction] == "" {
-			fmt.Println("Instruction", strings.ToUpper(instructions[programmCounter][0]), "not found")
-			os.Exit(3)
-		}
 		if programmCounter == 0 && actualInstruction != "START" {
 			fmt.Println("Instruction set needs to beginn with 'START'")
 			os.Exit(3)
@@ -153,71 +128,285 @@ func interpret(debugModus bool, instructions map[int][]string) {
 
 			// Execute the instruction:
 			inOut[tempInt] = accumulator
+
 			if debugModus {
 				fmt.Println("OUT-desu!")
 			}
 
 		case "IN":
+			// Check if we got the second value
+			if len(instructions[programmCounter]) < 2 {
+				fmt.Println("Missing value for instruction", strings.ToUpper(instructions[programmCounter][0]), "in line", programmCounter)
+				os.Exit(3)
+			}
+			// Convert second value to int
+			tempInt := strToInt(instructions[programmCounter][1])
+
+			// Execute the instruction:
+			accumulator = inOut[tempInt]
+
 			if debugModus {
 				fmt.Println("IN-desu!")
 			}
+
 		case "LOAD":
+			// Check if we got the second value
+			if len(instructions[programmCounter]) < 2 {
+				fmt.Println("Missing value for instruction", strings.ToUpper(instructions[programmCounter][0]), "in line", programmCounter)
+				os.Exit(3)
+			}
+			// Convert second value to int
+			tempInt := strToInt(instructions[programmCounter][1])
+
+			// Execute the instruction:
+			accumulator = register[tempInt]
+
 			if debugModus {
 				fmt.Println("LOAD-desu!")
 			}
+
 		case "LOADNUM":
+			// Check if we got the second value
+			if len(instructions[programmCounter]) < 2 {
+				fmt.Println("Missing value for instruction", strings.ToUpper(instructions[programmCounter][0]), "in line", programmCounter)
+				os.Exit(3)
+			}
+			// Convert second value to int
+			tempFloat := strToFloat(instructions[programmCounter][1])
+
+			// Execute the instruction:
+			accumulator = tempFloat
+
 			if debugModus {
 				fmt.Println("LOADNUM-desu!")
 			}
+
 		case "STORE":
+			// Check if we got the second value
+			if len(instructions[programmCounter]) < 2 {
+				fmt.Println("Missing value for instruction", strings.ToUpper(instructions[programmCounter][0]), "in line", programmCounter)
+				os.Exit(3)
+			}
+			// Convert second value to int
+			tempInt := strToInt(instructions[programmCounter][1])
+
+			// Execute the instruction:
+			register[tempInt] = accumulator
+
 			if debugModus {
 				fmt.Println("STORE-desu!")
 			}
+
 		case "JUMPNEG":
+			// Check if we got the second value
+			if len(instructions[programmCounter]) < 2 {
+				fmt.Println("Missing value for instruction", strings.ToUpper(instructions[programmCounter][0]), "in line", programmCounter)
+				os.Exit(3)
+			}
+			// Convert second value to int
+			tempInt := strToInt(instructions[programmCounter][1])
+
+			// Execute the instruction:
+			if accumulator < 0 {
+				if tempInt >= len(instructions) {
+					fmt.Println(strings.ToUpper(instructions[programmCounter][0]), "in line", programmCounter, "is jumping outside the barriers")
+					os.Exit(3)
+				}
+				programmCounter = tempInt
+			}
+
 			if debugModus {
 				fmt.Println("JUMPNEG-desu!")
 			}
+
 		case "JUMPPOS":
+			// Check if we got the second value
+			if len(instructions[programmCounter]) < 2 {
+				fmt.Println("Missing value for instruction", strings.ToUpper(instructions[programmCounter][0]), "in line", programmCounter)
+				os.Exit(3)
+			}
+			// Convert second value to int
+			tempInt := strToInt(instructions[programmCounter][1])
+
+			// Execute the instruction:
+			if accumulator > 0 {
+				if tempInt >= len(instructions) {
+					fmt.Println(strings.ToUpper(instructions[programmCounter][0]), "in line", programmCounter, "is jumping outside the barriers")
+					os.Exit(3)
+				}
+				programmCounter = tempInt
+			}
+
 			if debugModus {
 				fmt.Println("JUMPPOS-desu!")
 			}
+
 		case "JUMPNULL":
+			// Check if we got the second value
+			if len(instructions[programmCounter]) < 2 {
+				fmt.Println("Missing value for instruction", strings.ToUpper(instructions[programmCounter][0]), "in line", programmCounter)
+				os.Exit(3)
+			}
+			// Convert second value to int
+			tempInt := strToInt(instructions[programmCounter][1])
+
+			// Execute the instruction:
+			if accumulator == 0 {
+				if tempInt >= len(instructions) {
+					fmt.Println(strings.ToUpper(instructions[programmCounter][0]), "in line", programmCounter, "is jumping outside the barriers")
+					os.Exit(3)
+				}
+				programmCounter = tempInt
+			}
+
 			if debugModus {
 				fmt.Println("JUMPNULL-desu!")
 			}
+
 		case "JUMP":
+			// Check if we got the second value
+			if len(instructions[programmCounter]) < 2 {
+				fmt.Println("Missing value for instruction", strings.ToUpper(instructions[programmCounter][0]), "in line", programmCounter)
+				os.Exit(3)
+			}
+			// Convert second value to int
+			tempInt := strToInt(instructions[programmCounter][1])
+
+			// Execute the instruction:
+			if tempInt >= len(instructions) {
+				fmt.Println(strings.ToUpper(instructions[programmCounter][0]), "in line", programmCounter, "is jumping outside the barriers")
+				os.Exit(3)
+			}
+			programmCounter = tempInt
+
 			if debugModus {
 				fmt.Println("JUMP-desu!")
 			}
+
 		case "ADD":
+			// Check if we got the second value
+			if len(instructions[programmCounter]) < 2 {
+				fmt.Println("Missing value for instruction", strings.ToUpper(instructions[programmCounter][0]), "in line", programmCounter)
+				os.Exit(3)
+			}
+			// Convert second value to int
+			tempInt := strToInt(instructions[programmCounter][1])
+
+			// Execute the instruction:
+			accumulator += register[tempInt]
+
 			if debugModus {
 				fmt.Println("ADD-desu!")
 			}
+
 		case "ADDNUM":
+			// Check if we got the second value
+			if len(instructions[programmCounter]) < 2 {
+				fmt.Println("Missing value for instruction", strings.ToUpper(instructions[programmCounter][0]), "in line", programmCounter)
+				os.Exit(3)
+			}
+			// Convert second value to int
+			tempFloat := strToFloat(instructions[programmCounter][1])
+
+			// Execute the instruction:
+			accumulator += tempFloat
+
 			if debugModus {
 				fmt.Println("ADDNUM-desu!")
 			}
+
 		case "SUB":
+			// Check if we got the second value
+			if len(instructions[programmCounter]) < 2 {
+				fmt.Println("Missing value for instruction", strings.ToUpper(instructions[programmCounter][0]), "in line", programmCounter)
+				os.Exit(3)
+			}
+			// Convert second value to int
+			tempInt := strToInt(instructions[programmCounter][1])
+
+			// Execute the instruction:
+			accumulator -= register[tempInt]
+
 			if debugModus {
 				fmt.Println("SUB-desu!")
 			}
+
 		case "MUL":
+			// Check if we got the second value
+			if len(instructions[programmCounter]) < 2 {
+				fmt.Println("Missing value for instruction", strings.ToUpper(instructions[programmCounter][0]), "in line", programmCounter)
+				os.Exit(3)
+			}
+			// Convert second value to int
+			tempInt := strToInt(instructions[programmCounter][1])
+
+			// Execute the instruction:
+			accumulator = accumulator * register[tempInt]
+
 			if debugModus {
 				fmt.Println("MUL-desu!")
 			}
+
 		case "DIV":
+			// Check if we got the second value
+			if len(instructions[programmCounter]) < 2 {
+				fmt.Println("Missing value for instruction", strings.ToUpper(instructions[programmCounter][0]), "in line", programmCounter)
+				os.Exit(3)
+			}
+			// Convert second value to int
+			tempInt := strToInt(instructions[programmCounter][1])
+
+			// Execute the instruction:
+			accumulator = accumulator / register[tempInt]
+
 			if debugModus {
 				fmt.Println("DIV-desu!")
 			}
+
 		case "SUBNUM":
+			// Check if we got the second value
+			if len(instructions[programmCounter]) < 2 {
+				fmt.Println("Missing value for instruction", strings.ToUpper(instructions[programmCounter][0]), "in line", programmCounter)
+				os.Exit(3)
+			}
+			// Convert second value to int
+			tempFloat := strToFloat(instructions[programmCounter][1])
+
+			// Execute the instruction:
+			accumulator -= tempFloat
+
 			if debugModus {
 				fmt.Println("SUBNUM-desu!")
 			}
+
 		case "MULNUM":
+			// Check if we got the second value
+			if len(instructions[programmCounter]) < 2 {
+				fmt.Println("Missing value for instruction", strings.ToUpper(instructions[programmCounter][0]), "in line", programmCounter)
+				os.Exit(3)
+			}
+			// Convert second value to int
+			tempFloat := strToFloat(instructions[programmCounter][1])
+
+			// Execute the instruction:
+			accumulator = accumulator * tempFloat
+
 			if debugModus {
 				fmt.Println("MULNUM-desu!")
 			}
+
 		case "DIVNUM":
+			// Check if we got the second value
+			if len(instructions[programmCounter]) < 2 {
+				fmt.Println("Missing value for instruction", strings.ToUpper(instructions[programmCounter][0]), "in line", programmCounter)
+				os.Exit(3)
+			}
+			// Convert second value to int
+			tempFloat := strToFloat(instructions[programmCounter][1])
+
+			// Execute the instruction:
+			accumulator = accumulator / tempFloat
+
 			if debugModus {
 				fmt.Println("DIVNUM-desu!")
 			}
@@ -234,4 +423,13 @@ func strToInt(str string) int {
 		os.Exit(3)
 	}
 	return tempInt
+}
+
+func strToFloat(str string) float64 {
+	tempFloat, err := strconv.ParseFloat(str, 64)
+	if err != nil {
+		fmt.Println("Value needs to be an FLOAT")
+		os.Exit(3)
+	}
+	return tempFloat
 }
