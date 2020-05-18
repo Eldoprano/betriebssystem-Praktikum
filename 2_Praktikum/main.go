@@ -194,7 +194,7 @@ func interpret(debugModus bool, instructions map[int][]string) {
 				fmt.Println("Missing value for instruction", strings.ToUpper(instructions[programmCounter][0]), "in line", programmCounter)
 				os.Exit(3)
 			}
-			// Convert second value to int
+			// Convert second value to float
 			tempInt := strToInt(instructions[programmCounter][1])
 
 			// Execute the instruction:
@@ -220,7 +220,7 @@ func interpret(debugModus bool, instructions map[int][]string) {
 					fmt.Println(strings.ToUpper(instructions[programmCounter][0]), "in line", programmCounter, "is jumping outside the barriers")
 					os.Exit(3)
 				}
-				programmCounter = tempInt
+				programmCounter = tempInt - 1 // Minus 1, because the programmCounter gets incremented at the end
 			}
 
 			// Show command in case of Debug Modus
@@ -243,7 +243,7 @@ func interpret(debugModus bool, instructions map[int][]string) {
 					fmt.Println(strings.ToUpper(instructions[programmCounter][0]), "in line", programmCounter, "is jumping outside the barriers")
 					os.Exit(3)
 				}
-				programmCounter = tempInt
+				programmCounter = tempInt - 1 // Minus 1, because the programmCounter gets incremented at the end
 			}
 
 			// Show command in case of Debug Modus
@@ -266,7 +266,7 @@ func interpret(debugModus bool, instructions map[int][]string) {
 					fmt.Println(strings.ToUpper(instructions[programmCounter][0]), "in line", programmCounter, "is jumping outside the barriers")
 					os.Exit(3)
 				}
-				programmCounter = tempInt
+				programmCounter = tempInt - 1 // Minus 1, because the programmCounter gets incremented at the end
 			}
 
 			// Show command in case of Debug Modus
@@ -288,7 +288,7 @@ func interpret(debugModus bool, instructions map[int][]string) {
 				fmt.Println(strings.ToUpper(instructions[programmCounter][0]), "in line", programmCounter, "is jumping outside the barriers")
 				os.Exit(3)
 			}
-			programmCounter = tempInt
+			programmCounter = tempInt - 1 // Minus 1, because the programmCounter gets incremented at the end
 
 			// Show command in case of Debug Modus
 			if debugModus {
@@ -425,6 +425,11 @@ func interpret(debugModus bool, instructions map[int][]string) {
 
 			// Execute the instruction:
 			accumulator = accumulator / tempFloat
+
+			// Show command in case of Debug Modus
+			if debugModus {
+				println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
+			}
 		}
 		if debugModus {
 			printStatus(programmCounter, accumulator, register, inOut)
@@ -452,7 +457,7 @@ func printStatus(programmCounter int, accumulator float64, register map[int]floa
 		fmt.Printf("| Register %2d: %-13.4f| Register %2d: %-12.4f|\n", i, register[i], i+1, register[i+1])
 		//fmt.Println("|Register", i, ":", register[i], "\t\tRegister", i+1, ":", register[i+1])
 	}
-	fmt.Println(" ______________________________________________________\n")
+	fmt.Print(" ______________________________________________________\n\n")
 }
 
 func strToInt(str string) int {
