@@ -101,7 +101,7 @@ func interpret(debugModus bool, instructions map[int][]string) {
 	for programmCounter < len(instructions) {
 		// Save actual instruction
 		actualInstruction := strings.ToUpper(instructions[programmCounter][0])
-
+		stopWasCalled := false
 		if programmCounter == 0 && actualInstruction != "START" {
 			fmt.Println("Instruction set needs to beginn with 'START'")
 			os.Exit(3)
@@ -120,6 +120,7 @@ func interpret(debugModus bool, instructions map[int][]string) {
 			if debugModus {
 				fmt.Println(instructions[programmCounter][0], ":")
 			}
+			stopWasCalled = true
 			break
 
 		case "OUT":
@@ -482,6 +483,9 @@ func interpret(debugModus bool, instructions map[int][]string) {
 				printStatus(programmCounter, accumulator, register, inOut)
 				fmt.Print("_-_-_-_-_-_-_-_- DEBUG POINTER ENDS HERE!!! _-_-_-_-_-_-_-_-\n\n")
 			}
+		}
+		if stopWasCalled {
+			break
 		}
 		if iJustJumped == -1 {
 			programmCounter++
