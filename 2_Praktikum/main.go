@@ -468,19 +468,19 @@ func interpret(debugModus bool, instructions map[int][]string) {
 			fmt.Println("Command ", strings.ToUpper(instructions[programmCounter][0]), "in line", programmCounter, "not recognised")
 			os.Exit(3)
 		}
+		if debugModus {
+			if iJustJumped >= 0 {
+				printStatus(iJustJumped, accumulator, register, inOut)
+			} else {
+				printStatus(programmCounter, accumulator, register, inOut)
+			}
+		}
 		if len(instructions[programmCounter]) > 2 {
 			if instructions[programmCounter][2] == "@" {
 				fmt.Println("_-_-_-_-_-_-_-_- DEBUG POINTER POINTED HERE!!! _-_-_-_-_-_-_-_-")
 				fmt.Println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
 				printStatus(programmCounter, accumulator, register, inOut)
 				fmt.Print("_-_-_-_-_-_-_-_- DEBUG POINTER ENDS HERE!!! _-_-_-_-_-_-_-_-\n\n")
-			}
-		}
-		if debugModus {
-			if iJustJumped >= 0 {
-				printStatus(iJustJumped, accumulator, register, inOut)
-			} else {
-				printStatus(programmCounter, accumulator, register, inOut)
 			}
 		}
 		if iJustJumped == -1 {
