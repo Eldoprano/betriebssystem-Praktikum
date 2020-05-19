@@ -107,6 +107,8 @@ func interpret(debugModus bool, instructions map[int][]string) {
 			os.Exit(3)
 		}
 
+		iJustJumped := -1
+
 		// Show command in case of Debug Modus
 		switch actualInstruction {
 		case "START":
@@ -219,13 +221,21 @@ func interpret(debugModus bool, instructions map[int][]string) {
 				if tempInt >= len(instructions) {
 					fmt.Println(strings.ToUpper(instructions[programmCounter][0]), "in line", programmCounter, "is jumping outside the barriers")
 					os.Exit(3)
+				} else if tempInt < 0 {
+					fmt.Println(strings.ToUpper(instructions[programmCounter][0]), "in line", programmCounter, "is jumping to a negative")
+					os.Exit(3)
 				}
-				programmCounter = tempInt - 1 // Minus 1, because the programmCounter gets incremented at the end
+				iJustJumped = programmCounter // Save the original position, for visualization purposes
+				programmCounter = tempInt
 			}
 
 			// Show command in case of Debug Modus
 			if debugModus {
-				println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
+				if iJustJumped != -1 {
+					println(instructions[iJustJumped][0], instructions[iJustJumped][1], ":")
+				} else {
+					println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
+				}
 			}
 
 		case "JUMPPOS":
@@ -242,13 +252,21 @@ func interpret(debugModus bool, instructions map[int][]string) {
 				if tempInt >= len(instructions) {
 					fmt.Println(strings.ToUpper(instructions[programmCounter][0]), "in line", programmCounter, "is jumping outside the barriers")
 					os.Exit(3)
+				} else if tempInt < 0 {
+					fmt.Println(strings.ToUpper(instructions[programmCounter][0]), "in line", programmCounter, "is jumping to a negative")
+					os.Exit(3)
 				}
-				programmCounter = tempInt - 1 // Minus 1, because the programmCounter gets incremented at the end
+				iJustJumped = programmCounter // Save the original position, for visualization purposes
+				programmCounter = tempInt
 			}
 
 			// Show command in case of Debug Modus
 			if debugModus {
-				println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
+				if iJustJumped != -1 {
+					println(instructions[iJustJumped][0], instructions[iJustJumped][1], ":")
+				} else {
+					println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
+				}
 			}
 
 		case "JUMPNULL":
@@ -265,13 +283,21 @@ func interpret(debugModus bool, instructions map[int][]string) {
 				if tempInt >= len(instructions) {
 					fmt.Println(strings.ToUpper(instructions[programmCounter][0]), "in line", programmCounter, "is jumping outside the barriers")
 					os.Exit(3)
+				} else if tempInt < 0 {
+					fmt.Println(strings.ToUpper(instructions[programmCounter][0]), "in line", programmCounter, "is jumping to a negative")
+					os.Exit(3)
 				}
-				programmCounter = tempInt - 1 // Minus 1, because the programmCounter gets incremented at the end
+				iJustJumped = programmCounter // Save the original position, for visualization purposes
+				programmCounter = tempInt
 			}
 
 			// Show command in case of Debug Modus
 			if debugModus {
-				println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
+				if iJustJumped != -1 {
+					println(instructions[iJustJumped][0], instructions[iJustJumped][1], ":")
+				} else {
+					println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
+				}
 			}
 
 		case "JUMP":
@@ -287,12 +313,20 @@ func interpret(debugModus bool, instructions map[int][]string) {
 			if tempInt >= len(instructions) {
 				fmt.Println(strings.ToUpper(instructions[programmCounter][0]), "in line", programmCounter, "is jumping outside the barriers")
 				os.Exit(3)
+			} else if tempInt < 0 {
+				fmt.Println(strings.ToUpper(instructions[programmCounter][0]), "in line", programmCounter, "is jumping to a negative")
+				os.Exit(3)
 			}
-			programmCounter = tempInt - 1 // Minus 1, because the programmCounter gets incremented at the end
+			iJustJumped = programmCounter // Save the original position, for visualization purposes
+			programmCounter = tempInt
 
 			// Show command in case of Debug Modus
 			if debugModus {
-				println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
+				if iJustJumped != -1 {
+					println(instructions[iJustJumped][0], instructions[iJustJumped][1], ":")
+				} else {
+					println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
+				}
 			}
 
 		case "ADD":
@@ -430,14 +464,30 @@ func interpret(debugModus bool, instructions map[int][]string) {
 			if debugModus {
 				println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
 			}
+		default:
+			fmt.Println("Command ", strings.ToUpper(instructions[programmCounter][0]), "in line", programmCounter, "not recognised")
+			os.Exit(3)
+		}
+		if len(instructions[programmCounter]) > 2 {
+			if instructions[programmCounter][2] == "@" {
+				println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
+				printStatus(programmCounter, accumulator, register, inOut)
+			}
 		}
 		if debugModus {
-			printStatus(programmCounter, accumulator, register, inOut)
+			if iJustJumped >= 0 {
+				printStatus(iJustJumped, accumulator, register, inOut)
+			} else {
+				printStatus(programmCounter, accumulator, register, inOut)
+			}
 		}
-		programmCounter++
+		if iJustJumped == -1 {
+			programmCounter++
+		}
 	}
 
 	if !debugModus {
+		println("RESULT:")
 		printStatus(programmCounter-1, accumulator, register, inOut)
 	}
 	//printStatus(programmCounter, accumulator, register, inOut)
