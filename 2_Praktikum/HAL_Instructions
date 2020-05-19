@@ -1,13 +1,13 @@
 00 START
-01 LOADNUM -1
+01 LOADNUM 8
 02 STORE 4
-03 LOADNUM 3
+03 LOADNUM 6
 04 STORE 5
-05 LOADNUM -4
+05 LOADNUM 3
 06 STORE 6
-07 LOADNUM 1
+07 LOADNUM 2
 08 STORE 7
-09 LOADNUM 10
+09 LOADNUM -3
 10 STORE 8
 11 LOADNUM 0
 12 STORE 9
@@ -19,29 +19,29 @@
 18 STORE 10
 19 LOAD 5
 20 STORE 11
-21 LOAD 11
-22 JUMPNULL 30 
-23 LOAD 0           # Beginn with the first equation
-24 MUL 10           # In R10 we store the actual digit (R10^R11)
-25 JUMPNULL 46
-26 STORE 2
-27 STORE 10
-28 LOAD 11 <<<<<<<<<<<<<<<<<<<<<<<<<<
-29 JUMP 32
-30 LOAD 10          
+21 LOAD 0
+22 JUMPNULL 121
+23 JUMP 26 
+24 MUL 10
+25 JUMP 46 
+26 STORE 2      
+27 LOAD 11
+28 STORE 3      
+29 JUMP 33 
+30 LOADNUM 0    # We don't use this      
 31 JUMP 46
 32 STORE 3
 33 LOAD 3           # Here we beginn the power pow(R2^R3)
 34 JUMPPOS 37       # If positive, continue
 35 LOADNUM 1        # If negative or 0, return 1
-36 JUMP 46
+36 JUMP 24
 37 SUBNUM 1
 38 JUMPPOS 41
 39 LOAD 2
-40 JUMP 46
+40 JUMP 24
 41 STORE 3
 42 LOAD 2
-43 MUL 10
+43 MUL 0
 44 STORE 2
 45 JUMP 33          # Here we finished the power
 46 ADD 1            # Add the result to the equation
@@ -77,10 +77,10 @@
 76 JUMPPOS 83       # Positive and positive do nothing
 77 JUMP 98          # Positive and negative... There is a change!
 78 JUMP 83
-79 LOAD 1 <<<<<
-80 JUMPNEG 81
+79 LOAD 1           # If it was negative
+80 JUMPNEG 83
 81 JUMP 98
-82 JUMP 83
+82 JUMP 83          # We don't use this
 83 LOAD 1           # Here we reset some variables, so we can keep searching
 84 STORE 15
 85 JUMPNEG 88
@@ -112,9 +112,16 @@
 111 SUB 1
 112 SUB 15
 113 JUMPPOS 117
-114 LOAD 1
-115 STORE 1
+114 LOAD 0
+115 STORE 1         # In R1 We will get the X to use for the equation
 116 STOP
-117 LOAD 15
-118 STORE 1
-119 STOP
+117 LOAD 0
+118 SUBNUM 1
+119 STORE 1
+120 STOP
+121 LOAD 11  # Here we solve a Problem from Line 22
+122 JUMPNULL 125
+123 LOADNUM 0
+124 JUMP 46
+125 LOAD 10
+126 JUMP 46
