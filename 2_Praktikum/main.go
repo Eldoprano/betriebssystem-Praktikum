@@ -113,12 +113,12 @@ func interpret(debugModus bool, instructions map[int][]string) {
 		switch actualInstruction {
 		case "START":
 			if debugModus {
-				println(instructions[programmCounter][0], ":")
+				fmt.Println(instructions[programmCounter][0], ":")
 			}
 
 		case "STOP":
 			if debugModus {
-				println(instructions[programmCounter][0], ":")
+				fmt.Println(instructions[programmCounter][0], ":")
 			}
 			break
 
@@ -136,7 +136,7 @@ func interpret(debugModus bool, instructions map[int][]string) {
 
 			// Show command in case of Debug Modus
 			if debugModus {
-				println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
+				fmt.Println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
 			}
 
 		case "IN":
@@ -153,7 +153,7 @@ func interpret(debugModus bool, instructions map[int][]string) {
 
 			// Show command in case of Debug Modus
 			if debugModus {
-				println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
+				fmt.Println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
 			}
 
 		case "LOAD":
@@ -170,7 +170,7 @@ func interpret(debugModus bool, instructions map[int][]string) {
 
 			// Show command in case of Debug Modus
 			if debugModus {
-				println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
+				fmt.Println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
 			}
 
 		case "LOADNUM":
@@ -187,7 +187,7 @@ func interpret(debugModus bool, instructions map[int][]string) {
 
 			// Show command in case of Debug Modus
 			if debugModus {
-				println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
+				fmt.Println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
 			}
 
 		case "STORE":
@@ -204,7 +204,7 @@ func interpret(debugModus bool, instructions map[int][]string) {
 
 			// Show command in case of Debug Modus
 			if debugModus {
-				println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
+				fmt.Println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
 			}
 
 		case "JUMPNEG":
@@ -232,9 +232,9 @@ func interpret(debugModus bool, instructions map[int][]string) {
 			// Show command in case of Debug Modus
 			if debugModus {
 				if iJustJumped != -1 {
-					println(instructions[iJustJumped][0], instructions[iJustJumped][1], ":")
+					fmt.Println(instructions[iJustJumped][0], instructions[iJustJumped][1], ":")
 				} else {
-					println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
+					fmt.Println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
 				}
 			}
 
@@ -263,9 +263,9 @@ func interpret(debugModus bool, instructions map[int][]string) {
 			// Show command in case of Debug Modus
 			if debugModus {
 				if iJustJumped != -1 {
-					println(instructions[iJustJumped][0], instructions[iJustJumped][1], ":")
+					fmt.Println(instructions[iJustJumped][0], instructions[iJustJumped][1], ":")
 				} else {
-					println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
+					fmt.Println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
 				}
 			}
 
@@ -294,9 +294,9 @@ func interpret(debugModus bool, instructions map[int][]string) {
 			// Show command in case of Debug Modus
 			if debugModus {
 				if iJustJumped != -1 {
-					println(instructions[iJustJumped][0], instructions[iJustJumped][1], ":")
+					fmt.Println(instructions[iJustJumped][0], instructions[iJustJumped][1], ":")
 				} else {
-					println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
+					fmt.Println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
 				}
 			}
 
@@ -323,9 +323,9 @@ func interpret(debugModus bool, instructions map[int][]string) {
 			// Show command in case of Debug Modus
 			if debugModus {
 				if iJustJumped != -1 {
-					println(instructions[iJustJumped][0], instructions[iJustJumped][1], ":")
+					fmt.Println(instructions[iJustJumped][0], instructions[iJustJumped][1], ":")
 				} else {
-					println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
+					fmt.Println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
 				}
 			}
 
@@ -343,7 +343,7 @@ func interpret(debugModus bool, instructions map[int][]string) {
 
 			// Show command in case of Debug Modus
 			if debugModus {
-				println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
+				fmt.Println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
 			}
 
 		case "ADDNUM":
@@ -360,7 +360,7 @@ func interpret(debugModus bool, instructions map[int][]string) {
 
 			// Show command in case of Debug Modus
 			if debugModus {
-				println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
+				fmt.Println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
 			}
 
 		case "SUB":
@@ -377,7 +377,7 @@ func interpret(debugModus bool, instructions map[int][]string) {
 
 			// Show command in case of Debug Modus
 			if debugModus {
-				println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
+				fmt.Println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
 			}
 
 		case "MUL":
@@ -394,7 +394,7 @@ func interpret(debugModus bool, instructions map[int][]string) {
 
 			// Show command in case of Debug Modus
 			if debugModus {
-				println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
+				fmt.Println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
 			}
 
 		case "DIV":
@@ -411,7 +411,7 @@ func interpret(debugModus bool, instructions map[int][]string) {
 
 			// Show command in case of Debug Modus
 			if debugModus {
-				println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
+				fmt.Println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
 			}
 
 		case "SUBNUM":
@@ -428,7 +428,7 @@ func interpret(debugModus bool, instructions map[int][]string) {
 
 			// Show command in case of Debug Modus
 			if debugModus {
-				println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
+				fmt.Println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
 			}
 
 		case "MULNUM":
@@ -445,7 +445,7 @@ func interpret(debugModus bool, instructions map[int][]string) {
 
 			// Show command in case of Debug Modus
 			if debugModus {
-				println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
+				fmt.Println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
 			}
 
 		case "DIVNUM":
@@ -462,7 +462,7 @@ func interpret(debugModus bool, instructions map[int][]string) {
 
 			// Show command in case of Debug Modus
 			if debugModus {
-				println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
+				fmt.Println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
 			}
 		default:
 			fmt.Println("Command ", strings.ToUpper(instructions[programmCounter][0]), "in line", programmCounter, "not recognised")
@@ -470,8 +470,10 @@ func interpret(debugModus bool, instructions map[int][]string) {
 		}
 		if len(instructions[programmCounter]) > 2 {
 			if instructions[programmCounter][2] == "@" {
-				println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
+				fmt.Println("_-_-_-_-_-_-_-_- DEBUG POINTER POINTED HERE!!! _-_-_-_-_-_-_-_-")
+				fmt.Println(instructions[programmCounter][0], instructions[programmCounter][1], ":")
 				printStatus(programmCounter, accumulator, register, inOut)
+				fmt.Print("_-_-_-_-_-_-_-_- DEBUG POINTER ENDS HERE!!! _-_-_-_-_-_-_-_-\n\n")
 			}
 		}
 		if debugModus {
@@ -487,7 +489,7 @@ func interpret(debugModus bool, instructions map[int][]string) {
 	}
 
 	if !debugModus {
-		println("RESULT:")
+		fmt.Println("RESULT:")
 		printStatus(programmCounter-1, accumulator, register, inOut)
 	}
 	//printStatus(programmCounter, accumulator, register, inOut)
