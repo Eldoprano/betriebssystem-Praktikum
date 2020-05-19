@@ -1,13 +1,13 @@
 00 START
-01 LOADNUM 8
+01 LOADNUM -1
 02 STORE 4
-03 LOADNUM 6
+03 LOADNUM 3
 04 STORE 5
-05 LOADNUM 3
+05 LOADNUM -4
 06 STORE 6
-07 LOADNUM 2
+07 LOADNUM 1
 08 STORE 7
-09 LOADNUM -3
+09 LOADNUM 10
 10 STORE 8
 11 LOADNUM 0
 12 STORE 9
@@ -31,7 +31,7 @@
 30 LOADNUM 0    # We don't use this      
 31 JUMP 46
 32 STORE 3
-33 LOAD 3           # Here we beginn the power pow(R2^R3)
+33 LOAD 3           # Here we beginn the power pow(R2*X^R3)
 34 JUMPPOS 37       # If positive, continue
 35 LOADNUM 1        # If negative or 0, return 1
 36 JUMP 24
@@ -63,7 +63,7 @@
 62 LOADNUM 1 
 63 STORE 12
 64 JUMP 21
-65 LOAD 14 @        # Here we finished the equation
+65 LOAD 14          # Here we finished the equation
 66 JUMPPOS 75       # R14 saves 1 if the first saved was positive
 67 JUMPNEG 79       # R14 saves -1 if negative, and 0 if wasn't set already
 68 LOAD 1
@@ -104,24 +104,157 @@
 103 JUMPPOS 107
 104 LOAD 15
 105 STORE 1
-106 STOP
+106 JUMP 127
 107 LOAD 1
 108 STORE 1
-109 STOP
+109 JUMP 127
 110 LOADNUM 0
 111 SUB 1
 112 SUB 15
 113 JUMPPOS 117
 114 LOAD 0
 115 STORE 1         # In R1 We will get the X to use for the equation
-116 STOP
+116 JUMP 127
 117 LOAD 0
 118 SUBNUM 1
 119 STORE 1
-120 STOP
-121 LOAD 11  # Here we solve a Problem from Line 22
+120 JUMP 127
+121 LOAD 11         # Here we solve a Problem from Line 22
 122 JUMPNULL 125
 123 LOADNUM 0
 124 JUMP 46
 125 LOAD 10
 126 JUMP 46
+127 LOAD 4          # HERE WE BEGINN WITH THE SECOND PART!!!!!
+128 MUL 5          # Ableitung for the first number
+129 STORE 10
+130 LOAD 5
+131 SUBNUM 1        # If the power was 0, we will store a -1
+132 STORE 11
+133 LOAD 6          # Ableitung for the second number
+134 MUL 7
+135 STORE 12
+136 LOAD 6
+137 SUBNUM 1
+138 STORE 13
+139 LOAD 8          # Ableitung for the third number
+140 MUL 9
+141 STORE 14
+142 LOAD 9
+143 SUBNUM 1
+144 STORE 15            #######################################################
+145 LOAD 1               # Here we beginn the power pow(R4*X^R5)
+146 STORE 2
+147 LOAD 5               
+148 JUMPPOS 151            # If positive, continue
+149 LOADNUM 1              # If negative or 0, return 1
+150 JUMP 160
+151 SUBNUM 1
+152 JUMPPOS 155
+153 LOAD 2
+154 JUMP 160
+155 STORE 5
+156 LOAD 2
+157 MUL 1
+158 STORE 2
+159 JUMP 145          # Here we finished the power
+160 MUL 4
+161 ADDNUM 0        # At the beginning we just add to zero :P deal with it
+162 STORE 0
+163 LOAD 1               # Here we beginn the second power pow(R6*X^R7)
+164 STORE 2
+165 LOAD 7               
+166 JUMPPOS 169          # If positive, continue
+167 LOADNUM 1            # If negative or 0, return 1
+168 JUMP 198
+169 SUBNUM 1
+170 JUMPPOS 173
+171 LOAD 2
+172 JUMP 178
+173 STORE 7
+174 LOAD 6
+175 MUL 1
+176 STORE 2
+177 JUMP 163          # Here we finished the power
+178 MUL 6
+179 ADD 0
+180 STORE 0
+181 LOAD 1               # Here we beginn the power pow(R8*X^R9)
+182 STORE 2
+183 LOAD 9               
+184 JUMPPOS 187            # If positive, continue
+185 LOADNUM 1              # If negative or 0, return 1
+186 JUMP 196
+187 SUBNUM 1
+188 JUMPPOS 191
+189 LOAD 2
+190 JUMP 196
+191 STORE 9
+192 LOAD 2
+193 MUL 1
+194 STORE 2
+195 JUMP 181          # Here we finished the power
+196 MUL 8
+197 ADD 0
+198 STORE 0             # In R0 now we have the U in U/D
+199 LOAD 1               # Here we beginn the power pow(R10*X^R11)
+200 STORE 2
+201 LOAD 11               
+202 JUMPPOS 205            # If positive, continue
+203 LOADNUM 1              # If negative or 0, return 1
+204 JUMP 214
+205 SUBNUM 1
+206 JUMPPOS 209
+207 LOAD 2
+208 JUMP 214
+209 STORE 11
+210 LOAD 2
+211 MUL 1
+212 STORE 2
+213 JUMP 199          # Here we finished the power
+214 MUL 10
+215 ADDNUM 0
+216 STORE 3             
+217 LOAD 12               # Here we beginn the power pow(R12*X^R13)
+218 STORE 2
+219 LOAD 13               
+220 JUMPPOS 223            # If positive, continue
+221 LOADNUM 1              # If negative or 0, return 1
+222 JUMP 232
+223 SUBNUM 1
+224 JUMPPOS 227
+225 LOAD 2
+226 JUMP 232
+227 STORE 13
+228 LOAD 2
+229 MUL 12
+230 STORE 2
+231 JUMP 217          # Here we finished the power
+232 MUL 12
+233 ADD 3
+234 STORE 3      
+235 LOAD 14               # Here we beginn the power pow(R14*X^R15)
+236 STORE 2
+237 LOAD 15               
+238 JUMPPOS 241            # If positive, continue
+239 LOADNUM 1              # If negative or 0, return 1
+240 JUMP 250
+241 SUBNUM 1
+242 JUMPPOS 245
+243 LOAD 2
+244 JUMP 250
+245 STORE 15
+246 LOAD 2
+247 MUL 14
+248 STORE 2
+249 JUMP 235          # Here we finished the power
+250 MUL 14
+251 ADD 3
+252 STORE 3           # In R3 now we have the D in U/D  
+253 LOAD 0
+254 DIV 3
+255 STORE 3
+256 LOAD 1
+257 SUB 3
+258 STORE 1 @
+259 JUMP 145 
