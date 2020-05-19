@@ -13,26 +13,26 @@
 12 STORE 9
 13 LOADNUM 0
 14 STORE 1
-15 LOAD 4
-16 STORE 10
-17 LOAD 5
-18 STORE 11
-19 LOADNUM -10
-20 STORE 0
-21 LOAD 0
-22 MUL 10
+15 LOADNUM -10
+16 STORE 0
+17 LOAD 4
+18 STORE 10
+19 LOAD 5
+20 STORE 11
+21 LOAD 0           # Beginn with the first equation
+22 MUL 10           # In R10 we store the actual digit (R10^R11)
 23 JUMPNULL 45
 24 STORE 2
 25 STORE 10
 26 LOAD 11
-27 JUMPNULL 29 <<<<<<<<<<<<<<<<<<<<<<<
+27 JUMPNULL 29 
 28 JUMP 31
 29 LOAD 8
 30 JUMP 45
 31 STORE 3
-32 LOAD 3
-33 JUMPPOS 36
-34 LOADNUM 1
+32 LOAD 3           # Here we beginn the power pow(R2^R3)
+33 JUMPPOS 36       # If positive, continue
+34 LOADNUM 1        # If negative or 0, return 1
 35 JUMP 45
 36 SUBNUM 1
 37 JUMPPOS 40
@@ -42,12 +42,12 @@
 41 LOAD 2
 42 MUL 10
 43 STORE 2
-44 JUMP 32
-45 ADD 1
-46 STORE 1
-47 LOAD 12
-48 JUMPNEG 57
-49 JUMPPOS 64
+44 JUMP 32          # Here we finished the power
+45 ADD 1            # Add the result to the equation
+46 STORE 1          # The result of the equation is stored in R1
+47 LOAD 12          # If R12 is NUL, we need to do the second part
+48 JUMPNEG 57       # If R12 is NEG, we now need to make the third part
+49 JUMPPOS 64       # If R12 is POS, we finished with all 3 parts
 50 LOAD 6
 51 STORE 10
 52 LOAD 7
@@ -62,7 +62,7 @@
 61 LOADNUM 1 
 62 STORE 12
 63 JUMP 21
-64 LOAD 14          # Here we finished the equation
+64 LOAD 14 @        # Here we finished the equation
 65 JUMPPOS 74       # R14 saves 1 if the first saved was positive, -1 if negative and 0 if wasn't set already
 66 JUMPNEG 78
 67 LOAD 1
@@ -93,9 +93,9 @@
 92 STORE 12
 93 LOAD 0           # Here we change the "counter"  ( X )
 94 ADDNUM 1
-95 STORE 0 @
-96 JUMP 21          # And let's go again
-97 LOAD 1
+95 STORE 0 
+96 JUMP 17          # And let's go again
+97 LOAD 1 
 98 JUMPNEG 109
 99 LOADNUM 0
 100 SUB 15
