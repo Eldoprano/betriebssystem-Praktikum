@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"bufio"
 	"os"
+	"time"
 )
 
 var (
@@ -57,6 +58,10 @@ func HalStart(instr map[int]string, d bool) {
 
 	//parse instruction and parameters
 	for i := 1; i <= len(instr); i++ {
+		if debug {
+			time.Sleep(2 * time.Second)
+			fmt.Println("-----------------------------------")
+		}
 		value := instr[i]
 		s := strings.Fields(value)
 		parameter := strings.Join(s[1:], " ")
@@ -93,7 +98,7 @@ func HalStart(instr map[int]string, d bool) {
 		case "JUMPNULL":
 			address, err := jumpnull(parameter)
 			if err != nil {
-				fmt.Println("not jumping")
+				//fmt.Println("not jumping")
 			} else {
 				i = address - 1
 			}
@@ -117,7 +122,8 @@ func HalStart(instr map[int]string, d bool) {
 		case "DIVNUM":
 			divnum(parameter)
 		default:
-			fmt.Println("Invalid Instruction")
+			fmt.Println("Invalid Instruction", instruction)
+			os.Exit(2)
 		}
 
 		
@@ -143,11 +149,6 @@ func InitInAndOut() []inAndOut {
 
 }
 
-func getInput() float64 {
-	return 5
-}
-
-
 func load(parameter string) {
 	number, err := strconv.Atoi(parameter)
 	if err != nil {
@@ -155,18 +156,17 @@ func load(parameter string) {
 		os.Exit(2)
 	}
 	if debug {
-		fmt.Println("Excetuing LOAD")
+		fmt.Println("Executing LOAD")
 		fmt.Println("Inhalt von Register", number, "is", regList[number].value)
-		fmt.Println("Inhatl von Akkumulator ist: ", a.value)
+		fmt.Println("Inhalt von Akkumulator ist: ", a.value)
 	}
 
-	fmt.Println("loading register:", regList[number].number)
 	a.setValue(regList[number].value)
 
 	if debug {
 		fmt.Println("LOAD Done")
 		fmt.Println("Inhalt von Register", number, "is", regList[number].value)
-		fmt.Println("Inhatl von Akkumulator ist: ", a.value)
+		fmt.Println("Inhalt von Akkumulator ist: ", a.value)
 	}
 }
 
@@ -182,7 +182,7 @@ func infunc(parameter string) {
 		os.Exit(2)
 	}
 	if debug {
-		fmt.Println("Excetuing IN")
+		fmt.Println("Executing IN")
 		fmt.Println("Inhalt von I/O", number, "is", ioList[number].value)
 		fmt.Println("Inhatl von Akkumulator ist: ", a.value)
 	}
@@ -216,7 +216,7 @@ func start() {
 
 func stop() {
 	if debug {
-		fmt.Println("Excetuing STOP")
+		fmt.Println("Executing STOP")
 		fmt.Println("Inhalt von Akkumulator ist: ", a.value)
 	}
 	fmt.Println("Program Terminated")
@@ -235,7 +235,7 @@ func out(parameter string) {
 		os.Exit(2)
 	}
 	if debug {
-		fmt.Println("Excetuing OUT")
+		fmt.Println("Executing OUT")
 		fmt.Println("Inhalt von I/O", number, "is", ioList[number].value)
 		fmt.Println("Inhalt von Akkumulator ist: ", a.value)
 	}
@@ -255,7 +255,7 @@ func loadnum(parameter string) {
 		os.Exit(2)
 	}
 	if debug {
-		fmt.Println("Excetuing LOADNUM")
+		fmt.Println("Executing LOADNUM")
 		fmt.Println("Inhalt von Akkumulator ist: ", a.value)
 	}
 	a.setValue(number)
@@ -273,7 +273,7 @@ func store(parameter string) {
 		os.Exit(2)
 	}
 	if debug {
-		fmt.Println("Excetuing STORE")
+		fmt.Println("Executing STORE")
 		fmt.Println("Inhalt von Register", number, "is", regList[number].value)
 		fmt.Println("Inhatl von Akkumulator ist: ", a.value)
 	}
@@ -292,7 +292,7 @@ func jumpneg(parameter string) (int, error) {
 		os.Exit(2)
 	}
 	if debug {
-		fmt.Println("Excetuing JUMPNEG")
+		fmt.Println("Executing JUMPNEG")
 		fmt.Println("Inhalt von Akkumulator ist: ", a.value)
 	}
 	if math.Signbit(a.value) {
@@ -315,7 +315,7 @@ func jumppos(parameter string) (int, error) {
 		os.Exit(2)
 	}
 	if debug {
-		fmt.Println("Excetuing JUMPPOS")
+		fmt.Println("Executing JUMPPOS")
 		fmt.Println("Inhalt von Akkumulator ist: ", a.value)
 	}
 	if a.value == 0 {
@@ -346,7 +346,7 @@ func jumpnull(parameter string) (int, error) {
 		os.Exit(2)
 	}
 	if debug {
-		fmt.Println("Excetuing JUMPNULL")
+		fmt.Println("Executing JUMPNULL")
 		fmt.Println("Inhalt von Akkumulator ist: ", a.value)
 	}
 
@@ -371,7 +371,7 @@ func jump(parameter string) int {
 		os.Exit(2)
 	}
 	if debug {
-		fmt.Println("Excetuing JUMP")
+		fmt.Println("Executing JUMP")
 		fmt.Println("Inhalt von Akkumulator ist: ", a.value)
 	}
 	return number
@@ -384,7 +384,7 @@ func add(parameter string) {
 		os.Exit(2)
 	}
 	if debug {
-		fmt.Println("Excetuing ADD")
+		fmt.Println("Executing ADD")
 		fmt.Println("Inhalt von Register", number, "is", regList[number].value)
 		fmt.Println("Inhalt von Akkumulator ist: ", a.value)
 	}
@@ -404,7 +404,7 @@ func addnum(parameter string) {
 		os.Exit(2)
 	}
 	if debug {
-		fmt.Println("Excetuing ADDNUM")
+		fmt.Println("Executing ADDNUM")
 		fmt.Println("Inhalt von Parameter is", number)
 		fmt.Println("Inhalt von Akkumulator ist: ", a.value)
 	}
@@ -423,7 +423,7 @@ func sub(parameter string) {
 		os.Exit(2)
 	}
 	if debug {
-		fmt.Println("Excetuing SUB")
+		fmt.Println("Executing SUB")
 		fmt.Println("Inhalt von Register", number, "is", regList[number].value)
 		fmt.Println("Inhalt von Akkumulator ist: ", a.value)
 	}
@@ -443,7 +443,7 @@ func mul(parameter string) {
 		os.Exit(2)
 	}
 	if debug {
-		fmt.Println("Excetuing MUL")
+		fmt.Println("Executing MUL")
 		fmt.Println("Inhalt von Register", number, "is", regList[number].value)
 		fmt.Println("Inhalt von Akkumulator ist: ", a.value)
 	}
@@ -463,7 +463,7 @@ func div(parameter string) {
 		os.Exit(2)
 	}
 	if debug {
-		fmt.Println("Excetuing DIV")
+		fmt.Println("Executing DIV")
 		fmt.Println("Inhalt von Register", number, "is", regList[number].value)
 		fmt.Println("Inhalt von Akkumulator ist: ", a.value)
 	}
@@ -483,7 +483,7 @@ func subnum(parameter string) {
 		os.Exit(2)
 	}
 	if debug {
-		fmt.Println("Excetuing SUBNUM")
+		fmt.Println("Executing SUBNUM")
 		fmt.Println("Inhalt von Parameter is", number)
 		fmt.Println("Inhalt von Akkumulator ist: ", a.value)
 	}
@@ -503,7 +503,7 @@ func mulnum(parameter string) {
 		os.Exit(2)
 	}
 	if debug {
-		fmt.Println("Excetuing MULNUM")
+		fmt.Println("Executing MULNUM")
 		fmt.Println("Inhalt von Parameter is", number)
 		fmt.Println("Inhalt von Akkumulator ist: ", a.value)
 	}
@@ -522,7 +522,7 @@ func divnum(parameter string) {
 		 os.Exit(2)
 	}
 	if debug {
-		fmt.Println("Excetuing DIVNUM")
+		fmt.Println("Executing DIVNUM")
 		fmt.Println("Inhalt von Parameter is", number)
 		fmt.Println("Inhalt von Akkumulator ist: ", a.value)
 	}
