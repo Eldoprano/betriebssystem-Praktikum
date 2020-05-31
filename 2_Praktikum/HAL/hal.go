@@ -230,7 +230,7 @@ func out(parameter string) {
 		fmt.Println("OUT Could not convert", parameter)
 		os.Exit(2)
 	}
-	if number != 1 && number != 0 {
+	if number >= len(ioList) || number < 0 {
 		fmt.Println("OUT Not a valid instruction")
 		os.Exit(2)
 	}
@@ -295,17 +295,18 @@ func jumpneg(parameter string) (int, error) {
 		fmt.Println("Executing JUMPNEG")
 		fmt.Println("Inhalt von Akkumulator ist: ", a.value)
 	}
+
+	// Signbit reports whether x is negative or negative zero.
 	if math.Signbit(a.value) {
 		if debug {
 			fmt.Println("Jump gets executed")
 		 }
 		return number, nil
-	} else {
-		if debug {
-			fmt.Println("Jump does not get executed")
-		 }
-		return 0, fmt.Errorf("number is not positive")
 	}
+	if debug {
+		fmt.Println("Jump does not get executed")
+		}
+	return 0, fmt.Errorf("number is not positive") //Should we really use Errorf?
 }
 
 func jumppos(parameter string) (int, error) {
@@ -330,13 +331,11 @@ func jumppos(parameter string) (int, error) {
 			fmt.Println("Jump gets executed")
 		}
 		return number, nil
-	} else {
-		if debug {
-			fmt.Println("Jump does not get executed")
-		}
-		return 0, fmt.Errorf("JUMPPOS number is not positive")
+	} 
+	if debug {
+		fmt.Println("Jump does not get executed")
 	}
-
+	return 0, fmt.Errorf("JUMPPOS number is not positive")
 }
 
 func jumpnull(parameter string) (int, error) {
@@ -355,12 +354,12 @@ func jumpnull(parameter string) (int, error) {
 			fmt.Println("Jump does not get executed")
 		}
 		return 0, fmt.Errorf("accumulator is not 0")
-	} else {
-		if debug {
-			fmt.Println("Jump gets executed")
-		}
-		return number, nil
 	}
+	if debug {
+		fmt.Println("Jump gets executed")
+	}
+	return number, nil
+	
 
 }
 
