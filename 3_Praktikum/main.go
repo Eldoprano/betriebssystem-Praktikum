@@ -1,13 +1,16 @@
 package main
 
-import(
-	"fmt"
-	"flag"
+import (
 	"bufio"
+	"encoding/json"
+
+	"flag"
+	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
-	"strings"
 	"strconv"
+	"strings"
 	"./HAL"
 )
 
@@ -17,11 +20,55 @@ func main() {
 		return
 	}
 	d := flag.Bool("debug", false, "enables debug output")
-	input := flag.String("input", "", "The HAL-Programm file")
+	confPath := flag.String("configuration", "", "The HAL-Programm file")
+	progPath := flag.String("input", "", "The HAL-Programm file")
 	flag.Parse()
-	m := readFile(input)
 
+	// Load the configuration JSON into a structure
+	confStructure := readConfiguration(confPath)
+	fmt.Println(confStructure)
+
+	// Load the Programm file into a Map
+	m := readFile(progPath)
+
+	// Start the HAL
 	HAL.HalStart(m, *d)
+}
+
+type jsonConfiguration struct {
+	HALProzessoren  []prozessor  `json:"HALProzessoren"`
+	HALVerbindungen []verbindung `json:"HALVerbindungen"`
+}
+
+type prozessor struct {
+	Prozessor int    `json:"prozessor"`
+	Directory string `json:"directory"`
+}
+
+type verbindung struct {
+	From direction
+	To   direction
+}
+
+type direction struct {
+	Direction string
+	Prozessor int
+	Channel   int
+}
+
+func readConfiguration(input *string) jsonConfiguration{
+	file, err := os.Open(*input)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	byteValue, _ := ioutil.ReadAll(file)
+
+	// Here we convert the JSON into a structure
+	var result jsonConfiguration
+	json.Unmarshal([]byte(byteValue), &result)
+	return result
 }
 
 func readFile(input *string) map[int]string {
