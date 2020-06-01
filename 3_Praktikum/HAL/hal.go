@@ -8,6 +8,7 @@ import (
 	"bufio"
 	"os"
 	"time"
+	"sync"
 )
 
 var (
@@ -17,6 +18,7 @@ var (
 	a accu
 	debug = false
 	instructionList map[int]string
+	connectionList []Connection
 )
 
 type Connection struct{
@@ -55,16 +57,26 @@ func (a *accu) setValue(newVal float64) {
 //program counter
 
 // connection : verbindung []map[int]map[string]int
+func closeChannels(wg *sync.WaitGroup){
+	for _,conn := range(connectionList){
+		if conn.ConnType=="from"{
+			close(conn.Channel)
+		}
+	}
+	wg.Done()
+}
 
-func HalStart(instr map[int]string, d bool, num int, conn []Connection) {
+func HalStart(instr map[int]string, d bool, num int, conn []Connection, wg *sync.WaitGroup) {
 	if d {
 		debug = true
 		fmt.Println("Running in Debug Mode")
 	}	
 	//initalize all stuff
 	regList = InitRegisters()
-	ioList = InitInAndOut(2)
+	ioList = InitInAndOut(20)
 	a = accu{value: 0}
+	connectionList = conn
+	defer closeChannels(wg)
 
 	//parse instruction and parameters
 	for i := 1; i <= len(instructionList); i++ {
@@ -138,7 +150,6 @@ func HalStart(instr map[int]string, d bool, num int, conn []Connection) {
 
 		
 	}
-
 }
 
 //return all 16 registers with value 0
@@ -183,11 +194,12 @@ func load(parameter string) {
 func infunc(parameter string) {
 	//check if parameter is 1 or 0 else the instruction is invalid
 	number, err := strconv.Atoi(parameter)
+	var floatInput float64
 	if err != nil {
 		fmt.Println("IN Could not convert", parameter)
 		os.Exit(2)
 	}
-	if number != 1 && number != 0 {
+	if number >= len(ioList) || number < 0 {
 		fmt.Println("IN Not a valid instruction")
 		os.Exit(2)
 	}
@@ -197,17 +209,27 @@ func infunc(parameter string) {
 		fmt.Println("Inhatl von Akkumulator ist: ", a.value)
 	}
 
-	//prompt user for input
-	reader := bufio.NewReader(os.Stdin)
-	var input string
-	fmt.Println("Provide input:")
-	input, _ = reader.ReadString('\n')
-	input = strings.Replace(input, "\n", "", -1)
+	receivedPerChannel := false
+	for _,conn := range connectionList {
+		if conn.ConnType=="from" && number == conn.Port{
+			floatInput = <- conn.Channel
+			receivedPerChannel = true
+		}
+	}
 
-	floatInput, err := strconv.ParseFloat(input, 64)
-	if err != nil {
-		fmt.Println("IN Could not convert", input, err)
-		os.Exit(2)
+	if !receivedPerChannel {
+		//prompt user for input
+		reader := bufio.NewReader(os.Stdin)
+		var input string
+		fmt.Println("Provide input:")
+		input, _ = reader.ReadString('\n')
+		input = strings.Replace(input, "\n", "", -1)
+
+		floatInput, err = strconv.ParseFloat(input, 64)
+		if err != nil {
+			fmt.Println("IN Could not convert", input, err)
+			os.Exit(2)
+		}
 	}
 	//put the input into the given io
 	ioList[number].setValue(floatInput)
@@ -249,6 +271,19 @@ func out(parameter string) {
 		fmt.Println("Inhalt von I/O", number, "is", ioList[number].value)
 		fmt.Println("Inhalt von Akkumulator ist: ", a.value)
 	}
+
+	for _,conn := range connectionList {
+		if conn.ConnType=="to" && number == conn.Port{
+			conn.Channel <- a.value
+			if debug {
+				fmt.Println("OUT Done")
+				fmt.Println("Inhalt von I/O", number, "is", a.value)
+				fmt.Println("Inhatl von Akkumulator ist: ", a.value)
+			}
+			return
+		}
+	}
+
 	ioList[number].setValue(a.value)
 	fmt.Println("I/O", number, "has the value:", ioList[number].value)
 	if debug {

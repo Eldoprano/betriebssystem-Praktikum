@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"encoding/json"
-
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -11,6 +10,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 
 	"./HAL"
 )
@@ -33,27 +33,27 @@ func main() {
 		tmpChannel := make(chan float64)
 		tmpCreatedChannels := createdChannels{connection.From.Prozessor, connection.From.Channel, connection.To.Prozessor, connection.To.Channel, tmpChannel}
 		listOfChannels = append(listOfChannels, tmpCreatedChannels)
-		fmt.Println(listOfChannels)
 	}
 
-	// Start the HAL
+	// Configure and Start HAL
+	var wg sync.WaitGroup
 	for _, prozessor := range confStructure.HALProzessoren {
-		fmt.Println(prozessor.Prozessor, prozessor.Directory)
 		instructions := readFile(&prozessor.Directory)
 		var prozessorConnections []HAL.Connection
 		for _, connection := range listOfChannels {
-			if prozessor.Prozessor == connection.fromProzessor{
-				prozessorConnections = append(prozessorConnections, HAL.Connection{connection.fromPort,connection.Channel,"from"})
+			if prozessor.Prozessor == connection.fromProzessor {
+				prozessorConnections = append(prozessorConnections, HAL.Connection{connection.fromPort, connection.Channel, "from"})
 			}
 			if prozessor.Prozessor == connection.toProzessor {
-				prozessorConnections = append(prozessorConnections, HAL.Connection{connection.toPort,connection.Channel,"to"})
+				prozessorConnections = append(prozessorConnections, HAL.Connection{connection.toPort, connection.Channel, "to"})
 			}
 		}
-		_ = debugModus
-		_ = instructions
-		fmt.Println("Prozessor:",prozessor.Prozessor, "List:", prozessorConnections)
-		//HAL.HalStart(instructions, *debugModus, prozessor.Prozessor,prozessorConnections)
+		//fmt.Println("Prozessor: ", prozessor.Prozessor, "\nConnections:\n", prozessorConnections, "\n")
+		go HAL.HalStart(instructions, *debugModus, prozessor.Prozessor, prozessorConnections, &wg)
+		wg.Add(1)
 	}
+	wg.Wait()
+	fmt.Println("Main: Completed")
 }
 
 type jsonConfiguration struct {
