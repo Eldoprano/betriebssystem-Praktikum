@@ -1,32 +1,34 @@
 package HAL
 
 import (
+	"bufio"
 	"fmt"
 	"math"
-	"strings"
-	"strconv"
-	"bufio"
 	"os"
-	"time"
+	"strconv"
+	"strings"
 	"sync"
+	"time"
 )
 
 var (
-	pc int = 0
-	regList []register
-	ioList []inAndOut
-	a accu
-	debug = false
+	pc              int = 0
+	regList         []register
+	ioList          []inAndOut
+	a               accu
+	debug           = false
 	instructionList map[int]string
-	connectionList []Connection
+	connectionList  []Connection
+	prozessorNum    int
+	WaitGroup		*sync.WaitGroup
+	stopCalled 		bool
 )
 
-type Connection struct{
-	Port int
-	Channel chan float64
+type Connection struct {
+	Port     int
+	Channel  chan float64
 	ConnType string
 }
-
 
 type register struct {
 	value  float64
@@ -57,31 +59,35 @@ func (a *accu) setValue(newVal float64) {
 //program counter
 
 // connection : verbindung []map[int]map[string]int
-func closeChannels(wg *sync.WaitGroup){
-	for _,conn := range(connectionList){
-		if conn.ConnType=="from"{
+func closeChannels() {
+	for _, conn := range connectionList {
+		if conn.ConnType == "from" {
 			close(conn.Channel)
 		}
 	}
-	wg.Done()
+	WaitGroup.Done()
 }
 
 func HalStart(instr map[int]string, d bool, num int, conn []Connection, wg *sync.WaitGroup) {
 	if d {
 		debug = true
 		fmt.Println("Running in Debug Mode")
-	}	
+	}
 	//initalize all stuff
+	instructionList = instr
 	regList = InitRegisters()
-	ioList = InitInAndOut(20)
+	ioList = InitInAndOut(20) // Yeah... 20 👀 
 	a = accu{value: 0}
 	connectionList = conn
-	defer closeChannels(wg)
+	prozessorNum = num
+	WaitGroup = wg
+	stopCalled = false
+	defer closeChannels()
 
 	//parse instruction and parameters
 	for i := 1; i <= len(instructionList); i++ {
 		if debug {
-			time.Sleep(2 * time.Second)
+			time.Sleep(0 * time.Second)
 			fmt.Println("-----------------------------------")
 		}
 		value := instructionList[i]
@@ -90,34 +96,68 @@ func HalStart(instr map[int]string, d bool, num int, conn []Connection, wg *sync
 		//fmt.Println(parameter)
 		switch instruction := s[0]; instruction {
 		case "START":
+			if debug {
+				fmt.Println("-----------Prozessor ", prozessorNum, "-----------")
+				fmt.Println("Starting")
+			}
 			//start(parameter)
 		case "STOP":
+			stopCalled = true
+			if debug {
+				fmt.Println("-----------Prozessor ", prozessorNum, "-----------")
+			}
 			stop()
 		case "OUT":
+			if debug {
+				fmt.Println("-----------Prozessor ", prozessorNum, "-----------")
+			}
 			out(parameter)
 		case "IN":
+			if debug {
+				fmt.Println("-----------Prozessor ", prozessorNum, "-----------")
+			}
 			infunc(parameter)
 		case "LOAD":
+			if debug {
+				fmt.Println("-----------Prozessor ", prozessorNum, "-----------")
+			}
 			load(parameter)
 		case "LOADNUM":
+			if debug {
+				fmt.Println("-----------Prozessor ", prozessorNum, "-----------")
+			}
 			loadnum(parameter)
 		case "STORE":
+			if debug {
+				fmt.Println("-----------Prozessor ", prozessorNum, "-----------")
+			}
 			store(parameter)
 		case "JUMPNEG":
+			if debug {
+				fmt.Println("-----------Prozessor ", prozessorNum, "-----------")
+			}
 			address, err := jumpneg(parameter)
 			if err != nil {
-				fmt.Println("not jumping")
+				if debug {
+					//fmt.Println("not jumping")
+				}
 			} else {
 				i = address - 1
 			}
 		case "JUMPPOS":
+			if debug {
+				fmt.Println("-----------Prozessor ", prozessorNum, "-----------")
+			}
 			address, err := jumppos(parameter)
 			if err != nil {
-				fmt.Println("not jumping")
+				//fmt.Println("not jumping")
 			} else {
 				i = address - 1
 			}
 		case "JUMPNULL":
+			if debug {
+				fmt.Println("-----------Prozessor ", prozessorNum, "-----------")
+			}
 			address, err := jumpnull(parameter)
 			if err != nil {
 				//fmt.Println("not jumping")
@@ -125,30 +165,59 @@ func HalStart(instr map[int]string, d bool, num int, conn []Connection, wg *sync
 				i = address - 1
 			}
 		case "JUMP":
+			if debug {
+				fmt.Println("-----------Prozessor ", prozessorNum, "-----------")
+			}
 			address := jump(parameter)
 			i = address - 1
 		case "ADD":
+			if debug {
+				fmt.Println("-----------Prozessor ", prozessorNum, "-----------")
+			}
 			add(parameter)
 		case "ADDNUM":
+			if debug {
+				fmt.Println("-----------Prozessor ", prozessorNum, "-----------")
+			}
 			addnum(parameter)
 		case "SUB":
+			if debug {
+				fmt.Println("-----------Prozessor ", prozessorNum, "-----------")
+			}
 			sub(parameter)
 		case "MUL":
+			if debug {
+				fmt.Println("-----------Prozessor ", prozessorNum, "-----------")
+			}
 			mul(parameter)
 		case "DIV":
+			if debug {
+				fmt.Println("-----------Prozessor ", prozessorNum, "-----------")
+			}
 			div(parameter)
 		case "SUBNUM":
+			if debug {
+				fmt.Println("-----------Prozessor ", prozessorNum, "-----------")
+			}
 			subnum(parameter)
 		case "MULNUM":
+			if debug {
+				fmt.Println("-----------Prozessor ", prozessorNum, "-----------")
+			}
 			mulnum(parameter)
 		case "DIVNUM":
+			if debug {
+				fmt.Println("-----------Prozessor ", prozessorNum, "-----------")
+			}
 			divnum(parameter)
 		default:
 			fmt.Println("Invalid Instruction", instruction)
 			os.Exit(2)
 		}
-
-		
+		if stopCalled{
+			break
+		}
+		//fmt.Println("Num:", prozessorNum, "Connections:", connectionList)
 	}
 }
 
@@ -210,9 +279,9 @@ func infunc(parameter string) {
 	}
 
 	receivedPerChannel := false
-	for _,conn := range connectionList {
-		if conn.ConnType=="from" && number == conn.Port{
-			floatInput = <- conn.Channel
+	for _, conn := range connectionList {
+		if conn.ConnType == "to" && number == conn.Port {
+			floatInput = <-conn.Channel
 			receivedPerChannel = true
 		}
 	}
@@ -239,7 +308,7 @@ func infunc(parameter string) {
 		fmt.Println("Inhalt von I/O", number, "is", ioList[number].value)
 		fmt.Println("Inhatl von Akkumulator ist: ", a.value)
 	}
-	
+
 }
 
 func start() {
@@ -251,10 +320,8 @@ func stop() {
 		fmt.Println("Executing STOP")
 		fmt.Println("Inhalt von Akkumulator ist: ", a.value)
 	}
-	fmt.Println("Program Terminated")
-	os.Exit(0)
+	fmt.Println("Prozessor",prozessorNum,"Terminated")
 }
-
 
 func out(parameter string) {
 	number, err := strconv.Atoi(parameter)
@@ -272,11 +339,12 @@ func out(parameter string) {
 		fmt.Println("Inhalt von Akkumulator ist: ", a.value)
 	}
 
-	for _,conn := range connectionList {
-		if conn.ConnType=="to" && number == conn.Port{
+	//fmt.Println("Prozessor:", prozessorNum, " is Searching in: ", connectionList, " The number: ", number)
+	for _, conn := range connectionList {
+		if conn.ConnType == "from" && number == conn.Port {
 			conn.Channel <- a.value
 			if debug {
-				fmt.Println("OUT Done")
+				fmt.Println("OUTCHANNEL Done")
 				fmt.Println("Inhalt von I/O", number, "is", a.value)
 				fmt.Println("Inhatl von Akkumulator ist: ", a.value)
 			}
@@ -285,7 +353,7 @@ func out(parameter string) {
 	}
 
 	ioList[number].setValue(a.value)
-	fmt.Println("I/O", number, "has the value:", ioList[number].value)
+	fmt.Println("On Prozessor",prozessorNum," the I/O", number, "has the value:", ioList[number].value)
 	if debug {
 		fmt.Println("OUT Done")
 		fmt.Println("Inhalt von I/O", number, "is", ioList[number].value)
@@ -345,12 +413,12 @@ func jumpneg(parameter string) (int, error) {
 	if math.Signbit(a.value) {
 		if debug {
 			fmt.Println("Jump gets executed")
-		 }
+		}
 		return number, nil
 	}
 	if debug {
 		fmt.Println("Jump does not get executed")
-		}
+	}
 	return 0, fmt.Errorf("number is not positive") //Should we really use Errorf?
 }
 
@@ -376,7 +444,7 @@ func jumppos(parameter string) (int, error) {
 			fmt.Println("Jump gets executed")
 		}
 		return number, nil
-	} 
+	}
 	if debug {
 		fmt.Println("Jump does not get executed")
 	}
@@ -404,7 +472,6 @@ func jumpnull(parameter string) (int, error) {
 		fmt.Println("Jump gets executed")
 	}
 	return number, nil
-	
 
 }
 
@@ -563,7 +630,7 @@ func divnum(parameter string) {
 	number, err := strconv.ParseFloat(parameter, 64)
 	if err != nil {
 		fmt.Println("DIVNUM could not convert", parameter)
-		 os.Exit(2)
+		os.Exit(2)
 	}
 	if debug {
 		fmt.Println("Executing DIVNUM")
