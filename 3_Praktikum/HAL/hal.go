@@ -16,7 +16,15 @@ var (
 	ioList []inAndOut
 	a accu
 	debug = false
+	instructionList map[int]string
 )
+
+type Connection struct{
+	Port int
+	Channel chan float64
+	ConnType string
+}
+
 
 type register struct {
 	value  float64
@@ -46,23 +54,25 @@ func (a *accu) setValue(newVal float64) {
 
 //program counter
 
-func HalStart(instr map[int]string, d bool) {
+// connection : verbindung []map[int]map[string]int
+
+func HalStart(instr map[int]string, d bool, num int, conn []Connection) {
 	if d {
 		debug = true
 		fmt.Println("Running in Debug Mode")
-	}
+	}	
 	//initalize all stuff
 	regList = InitRegisters()
-	ioList = InitInAndOut()
+	ioList = InitInAndOut(2)
 	a = accu{value: 0}
 
 	//parse instruction and parameters
-	for i := 1; i <= len(instr); i++ {
+	for i := 1; i <= len(instructionList); i++ {
 		if debug {
 			time.Sleep(2 * time.Second)
 			fmt.Println("-----------------------------------")
 		}
-		value := instr[i]
+		value := instructionList[i]
 		s := strings.Fields(value)
 		parameter := strings.Join(s[1:], " ")
 		//fmt.Println(parameter)
@@ -140,9 +150,9 @@ func InitRegisters() []register {
 	return regList
 }
 
-func InitInAndOut() []inAndOut {
+func InitInAndOut(numberOfIO int) []inAndOut {
 	var ioList []inAndOut
-	for i := 0; i <= 1; i++ {
+	for i := 0; i < numberOfIO; i++ {
 		ioList = append(ioList, inAndOut{number: i, value: 0})
 	}
 	return ioList

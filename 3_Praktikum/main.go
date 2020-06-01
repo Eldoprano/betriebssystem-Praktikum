@@ -11,6 +11,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
 	"./HAL"
 )
 
@@ -19,20 +20,40 @@ func main() {
 		fmt.Println("Not enough arguments specified")
 		return
 	}
-	d := flag.Bool("debug", false, "enables debug output")
+	debugModus := flag.Bool("debug", false, "enables debug output")
 	confPath := flag.String("configuration", "", "The HAL-Programm file")
-	progPath := flag.String("input", "", "The HAL-Programm file")
 	flag.Parse()
 
 	// Load the configuration JSON into a structure
 	confStructure := readConfiguration(confPath)
-	fmt.Println(confStructure)
 
-	// Load the Programm file into a Map
-	m := readFile(progPath)
+	// Create the channels
+	var listOfChannels []createdChannels
+	for _, connection := range confStructure.HALVerbindungen {
+		tmpChannel := make(chan float64)
+		tmpCreatedChannels := createdChannels{connection.From.Prozessor, connection.From.Channel, connection.To.Prozessor, connection.To.Channel, tmpChannel}
+		listOfChannels = append(listOfChannels, tmpCreatedChannels)
+		fmt.Println(listOfChannels)
+	}
 
 	// Start the HAL
-	HAL.HalStart(m, *d)
+	for _, prozessor := range confStructure.HALProzessoren {
+		fmt.Println(prozessor.Prozessor, prozessor.Directory)
+		instructions := readFile(&prozessor.Directory)
+		var prozessorConnections []HAL.Connection
+		for _, connection := range listOfChannels {
+			if prozessor.Prozessor == connection.fromProzessor{
+				prozessorConnections = append(prozessorConnections, HAL.Connection{connection.fromPort,connection.Channel,"from"})
+			}
+			if prozessor.Prozessor == connection.toProzessor {
+				prozessorConnections = append(prozessorConnections, HAL.Connection{connection.toPort,connection.Channel,"to"})
+			}
+		}
+		_ = debugModus
+		_ = instructions
+		fmt.Println("Prozessor:",prozessor.Prozessor, "List:", prozessorConnections)
+		//HAL.HalStart(instructions, *debugModus, prozessor.Prozessor,prozessorConnections)
+	}
 }
 
 type jsonConfiguration struct {
@@ -56,7 +77,15 @@ type direction struct {
 	Channel   int
 }
 
-func readConfiguration(input *string) jsonConfiguration{
+type createdChannels struct {
+	fromProzessor int
+	fromPort      int
+	toProzessor   int
+	toPort        int
+	Channel       chan float64
+}
+
+func readConfiguration(input *string) jsonConfiguration {
 	file, err := os.Open(*input)
 	if err != nil {
 		log.Fatal(err)
