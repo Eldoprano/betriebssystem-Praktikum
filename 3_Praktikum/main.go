@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"./HAL"
 )
@@ -37,6 +38,7 @@ func main() {
 
 	// Configure and Start HAL
 	var wg sync.WaitGroup
+	wg.Add(4)
 	for _, prozessor := range confStructure.HALProzessoren {
 		instructions := readFile(&prozessor.Directory)
 		var prozessorConnections []HAL.Connection
@@ -49,8 +51,9 @@ func main() {
 			}
 		}
 		//fmt.Println("Prozessor: ", prozessor.Prozessor, "\nConnections:\n", prozessorConnections, "\n")
-		wg.Add(1)
 		go HAL.HalStart(instructions, *debugModus, prozessor.Prozessor, prozessorConnections, &wg)
+		time.Sleep(0 * time.Second)
+
 	}
 	wg.Wait()
 

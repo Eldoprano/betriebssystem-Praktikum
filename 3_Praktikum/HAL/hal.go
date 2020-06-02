@@ -19,7 +19,6 @@ var (
 	debug           = false
 	instructionList map[int]string
 	WaitGroup       *sync.WaitGroup
-	stopCalled      bool
 )
 
 type Connection struct {
@@ -57,9 +56,10 @@ func (a *accu) setValue(newVal float64) {
 //program counter
 
 // connection : verbindung []map[int]map[string]int
-func closeChannels(connectionList []Connection) {
+func closeChannels(connectionList []Connection, prozessorNum int) {
 	for _, conn := range connectionList {
 		if conn.ConnType == "from" {
+			//fmt.Println(prozessorNum, "is closing channel", conn.Channel, "from list", connectionList)
 			close(conn.Channel)
 		}
 	}
@@ -77,14 +77,14 @@ func HalStart(instr map[int]string, d bool, num int, conn []Connection, wg *sync
 	ioList = InitInAndOut(20) // Yeah... 20 👀
 	a = accu{value: 0}
 	WaitGroup = wg
-	stopCalled = false
-	defer closeChannels(conn)
+	stopCalled := false
+	defer closeChannels(conn, num)
 
 	//parse instruction and parameters
 	for i := 1; i <= len(instructionList); i++ {
 		if debug {
-			time.Sleep(1 * time.Second)
-			//fmt.Println("-----------------------------------")
+			time.Sleep(0 * time.Second)
+			fmt.Println("-----------------------------------")
 		}
 		value := instructionList[i]
 		s := strings.Fields(value)
@@ -107,12 +107,12 @@ func HalStart(instr map[int]string, d bool, num int, conn []Connection, wg *sync
 			if debug {
 				fmt.Println("-----------Prozessor ", num, "-----------")
 			}
-			out(parameter, num,conn)
+			out(parameter, num, conn)
 		case "IN":
 			if debug {
 				fmt.Println("-----------Prozessor ", num, "-----------")
 			}
-			infunc(parameter,conn)
+			infunc(parameter, num, conn)
 		case "LOAD":
 			if debug {
 				fmt.Println("-----------Prozessor ", num, "-----------")
@@ -213,7 +213,7 @@ func HalStart(instr map[int]string, d bool, num int, conn []Connection, wg *sync
 		if stopCalled {
 			break
 		}
-		//fmt.Println("Num:", prozessorNum, "Connections:", connectionList)
+		//fmt.Println("Num:", num, "Connections:", conn)
 	}
 }
 
@@ -256,7 +256,7 @@ func load(parameter string) {
 	}
 }
 
-func infunc(parameter string,connectionList []Connection) {
+func infunc(parameter string, prozessorNum int, connectionList []Connection) {
 	//check if parameter is 1 or 0 else the instruction is invalid
 	number, err := strconv.Atoi(parameter)
 	var floatInput float64
@@ -269,7 +269,7 @@ func infunc(parameter string,connectionList []Connection) {
 		os.Exit(2)
 	}
 	if debug {
-		fmt.Println("Executing IN")
+		fmt.Println("Executing IN Prozessor", prozessorNum)
 		fmt.Println("Inhalt von I/O", number, "is", ioList[number].value)
 		fmt.Println("Inhatl von Akkumulator ist: ", a.value)
 	}
@@ -277,8 +277,10 @@ func infunc(parameter string,connectionList []Connection) {
 	receivedPerChannel := false
 	for _, conn := range connectionList {
 		if conn.ConnType == "to" && number == conn.Port {
+			//fmt.Println("INCHANNEL Prozessor", prozessorNum, "is listening channel:", conn.Channel)
 			floatInput = <-conn.Channel
 			receivedPerChannel = true
+			//fmt.Println("INCHANNEL executed Prozessor", prozessorNum, "Received numer", floatInput)
 		}
 	}
 
@@ -300,7 +302,7 @@ func infunc(parameter string,connectionList []Connection) {
 	ioList[number].setValue(floatInput)
 	a.setValue(ioList[number].value)
 	if debug {
-		fmt.Println("IN Done")
+		fmt.Println("IN Done Prozessor", prozessorNum)
 		fmt.Println("Inhalt von I/O", number, "is", ioList[number].value)
 		fmt.Println("Inhatl von Akkumulator ist: ", a.value)
 	}
@@ -330,7 +332,7 @@ func out(parameter string, prozessorNum int, connectionList []Connection) {
 		os.Exit(2)
 	}
 	if debug {
-		fmt.Println("Executing OUT")
+		fmt.Println("Executing OUT Prozessor", prozessorNum)
 		fmt.Println("Inhalt von I/O", number, "is", ioList[number].value)
 		fmt.Println("Inhalt von Akkumulator ist: ", a.value)
 	}
@@ -340,7 +342,7 @@ func out(parameter string, prozessorNum int, connectionList []Connection) {
 		if conn.ConnType == "from" && number == conn.Port {
 			conn.Channel <- a.value
 			if debug {
-				fmt.Println("OUTCHANNEL Done")
+				fmt.Println("OUTCHANNEL Done Prozessor", prozessorNum, "channel:", conn.Channel)
 				fmt.Println("Inhalt von I/O", number, "is", a.value)
 				fmt.Println("Inhatl von Akkumulator ist: ", a.value)
 			}
@@ -351,7 +353,7 @@ func out(parameter string, prozessorNum int, connectionList []Connection) {
 	ioList[number].setValue(a.value)
 	fmt.Println("On Prozessor", prozessorNum, " the I/O", number, "has the value:", ioList[number].value)
 	if debug {
-		fmt.Println("OUT Done")
+		fmt.Println("OUT Don Prozessor", prozessorNum)
 		fmt.Println("Inhalt von I/O", number, "is", ioList[number].value)
 		fmt.Println("Inhatl von Akkumulator ist: ", a.value)
 	}
