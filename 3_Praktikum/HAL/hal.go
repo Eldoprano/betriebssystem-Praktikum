@@ -18,8 +18,6 @@ var (
 	a               accu
 	debug           = false
 	instructionList map[int]string
-	connectionList  []Connection
-	prozessorNum    int
 	WaitGroup       *sync.WaitGroup
 	stopCalled      bool
 )
@@ -59,7 +57,7 @@ func (a *accu) setValue(newVal float64) {
 //program counter
 
 // connection : verbindung []map[int]map[string]int
-func closeChannels() {
+func closeChannels(connectionList []Connection) {
 	for _, conn := range connectionList {
 		if conn.ConnType == "from" {
 			close(conn.Channel)
@@ -78,17 +76,15 @@ func HalStart(instr map[int]string, d bool, num int, conn []Connection, wg *sync
 	regList = InitRegisters()
 	ioList = InitInAndOut(20) // Yeah... 20 👀
 	a = accu{value: 0}
-	connectionList = conn
-	prozessorNum = num
 	WaitGroup = wg
 	stopCalled = false
-	defer closeChannels()
+	defer closeChannels(conn)
 
 	//parse instruction and parameters
 	for i := 1; i <= len(instructionList); i++ {
 		if debug {
 			time.Sleep(1 * time.Second)
-			fmt.Println("-----------------------------------")
+			//fmt.Println("-----------------------------------")
 		}
 		value := instructionList[i]
 		s := strings.Fields(value)
@@ -97,44 +93,44 @@ func HalStart(instr map[int]string, d bool, num int, conn []Connection, wg *sync
 		switch instruction := s[0]; instruction {
 		case "START":
 			if debug {
-				fmt.Println("-----------Prozessor ", prozessorNum, "-----------")
+				fmt.Println("-----------Prozessor ", num, "-----------")
 				fmt.Println("Starting")
 			}
 			//start(parameter)
 		case "STOP":
 			stopCalled = true
 			if debug {
-				fmt.Println("-----------Prozessor ", prozessorNum, "-----------")
+				fmt.Println("-----------Prozessor ", num, "-----------")
 			}
-			stop()
+			stop(num)
 		case "OUT":
 			if debug {
-				fmt.Println("-----------Prozessor ", prozessorNum, "-----------")
+				fmt.Println("-----------Prozessor ", num, "-----------")
 			}
-			out(parameter)
+			out(parameter, num,conn)
 		case "IN":
 			if debug {
-				fmt.Println("-----------Prozessor ", prozessorNum, "-----------")
+				fmt.Println("-----------Prozessor ", num, "-----------")
 			}
-			infunc(parameter)
+			infunc(parameter,conn)
 		case "LOAD":
 			if debug {
-				fmt.Println("-----------Prozessor ", prozessorNum, "-----------")
+				fmt.Println("-----------Prozessor ", num, "-----------")
 			}
 			load(parameter)
 		case "LOADNUM":
 			if debug {
-				fmt.Println("-----------Prozessor ", prozessorNum, "-----------")
+				fmt.Println("-----------Prozessor ", num, "-----------")
 			}
 			loadnum(parameter)
 		case "STORE":
 			if debug {
-				fmt.Println("-----------Prozessor ", prozessorNum, "-----------")
+				fmt.Println("-----------Prozessor ", num, "-----------")
 			}
 			store(parameter)
 		case "JUMPNEG":
 			if debug {
-				fmt.Println("-----------Prozessor ", prozessorNum, "-----------")
+				fmt.Println("-----------Prozessor ", num, "-----------")
 			}
 			address, err := jumpneg(parameter)
 			if err != nil {
@@ -146,7 +142,7 @@ func HalStart(instr map[int]string, d bool, num int, conn []Connection, wg *sync
 			}
 		case "JUMPPOS":
 			if debug {
-				fmt.Println("-----------Prozessor ", prozessorNum, "-----------")
+				fmt.Println("-----------Prozessor ", num, "-----------")
 			}
 			address, err := jumppos(parameter)
 			if err != nil {
@@ -156,7 +152,7 @@ func HalStart(instr map[int]string, d bool, num int, conn []Connection, wg *sync
 			}
 		case "JUMPNULL":
 			if debug {
-				fmt.Println("-----------Prozessor ", prozessorNum, "-----------")
+				fmt.Println("-----------Prozessor ", num, "-----------")
 			}
 			address, err := jumpnull(parameter)
 			if err != nil {
@@ -166,48 +162,48 @@ func HalStart(instr map[int]string, d bool, num int, conn []Connection, wg *sync
 			}
 		case "JUMP":
 			if debug {
-				fmt.Println("-----------Prozessor ", prozessorNum, "-----------")
+				fmt.Println("-----------Prozessor ", num, "-----------")
 			}
 			address := jump(parameter)
 			i = address - 1
 		case "ADD":
 			if debug {
-				fmt.Println("-----------Prozessor ", prozessorNum, "-----------")
+				fmt.Println("-----------Prozessor ", num, "-----------")
 			}
 			add(parameter)
 		case "ADDNUM":
 			if debug {
-				fmt.Println("-----------Prozessor ", prozessorNum, "-----------")
+				fmt.Println("-----------Prozessor ", num, "-----------")
 			}
 			addnum(parameter)
 		case "SUB":
 			if debug {
-				fmt.Println("-----------Prozessor ", prozessorNum, "-----------")
+				fmt.Println("-----------Prozessor ", num, "-----------")
 			}
 			sub(parameter)
 		case "MUL":
 			if debug {
-				fmt.Println("-----------Prozessor ", prozessorNum, "-----------")
+				fmt.Println("-----------Prozessor ", num, "-----------")
 			}
 			mul(parameter)
 		case "DIV":
 			if debug {
-				fmt.Println("-----------Prozessor ", prozessorNum, "-----------")
+				fmt.Println("-----------Prozessor ", num, "-----------")
 			}
 			div(parameter)
 		case "SUBNUM":
 			if debug {
-				fmt.Println("-----------Prozessor ", prozessorNum, "-----------")
+				fmt.Println("-----------Prozessor ", num, "-----------")
 			}
 			subnum(parameter)
 		case "MULNUM":
 			if debug {
-				fmt.Println("-----------Prozessor ", prozessorNum, "-----------")
+				fmt.Println("-----------Prozessor ", num, "-----------")
 			}
 			mulnum(parameter)
 		case "DIVNUM":
 			if debug {
-				fmt.Println("-----------Prozessor ", prozessorNum, "-----------")
+				fmt.Println("-----------Prozessor ", num, "-----------")
 			}
 			divnum(parameter)
 		default:
@@ -260,7 +256,7 @@ func load(parameter string) {
 	}
 }
 
-func infunc(parameter string) {
+func infunc(parameter string,connectionList []Connection) {
 	//check if parameter is 1 or 0 else the instruction is invalid
 	number, err := strconv.Atoi(parameter)
 	var floatInput float64
@@ -315,7 +311,7 @@ func start() {
 
 }
 
-func stop() {
+func stop(prozessorNum int) {
 	if debug {
 		fmt.Println("Executing STOP")
 		fmt.Println("Inhalt von Akkumulator ist: ", a.value)
@@ -323,7 +319,7 @@ func stop() {
 	fmt.Println("Prozessor", prozessorNum, "Terminated")
 }
 
-func out(parameter string) {
+func out(parameter string, prozessorNum int, connectionList []Connection) {
 	number, err := strconv.Atoi(parameter)
 	if err != nil {
 		fmt.Println("OUT Could not convert", parameter)
