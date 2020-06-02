@@ -20,8 +20,8 @@ var (
 	instructionList map[int]string
 	connectionList  []Connection
 	prozessorNum    int
-	WaitGroup		*sync.WaitGroup
-	stopCalled 		bool
+	WaitGroup       *sync.WaitGroup
+	stopCalled      bool
 )
 
 type Connection struct {
@@ -76,7 +76,7 @@ func HalStart(instr map[int]string, d bool, num int, conn []Connection, wg *sync
 	//initalize all stuff
 	instructionList = instr
 	regList = InitRegisters()
-	ioList = InitInAndOut(20) // Yeah... 20 👀 
+	ioList = InitInAndOut(20) // Yeah... 20 👀
 	a = accu{value: 0}
 	connectionList = conn
 	prozessorNum = num
@@ -87,7 +87,7 @@ func HalStart(instr map[int]string, d bool, num int, conn []Connection, wg *sync
 	//parse instruction and parameters
 	for i := 1; i <= len(instructionList); i++ {
 		if debug {
-			time.Sleep(0 * time.Second)
+			time.Sleep(1 * time.Second)
 			fmt.Println("-----------------------------------")
 		}
 		value := instructionList[i]
@@ -214,7 +214,7 @@ func HalStart(instr map[int]string, d bool, num int, conn []Connection, wg *sync
 			fmt.Println("Invalid Instruction", instruction)
 			os.Exit(2)
 		}
-		if stopCalled{
+		if stopCalled {
 			break
 		}
 		//fmt.Println("Num:", prozessorNum, "Connections:", connectionList)
@@ -320,7 +320,7 @@ func stop() {
 		fmt.Println("Executing STOP")
 		fmt.Println("Inhalt von Akkumulator ist: ", a.value)
 	}
-	fmt.Println("Prozessor",prozessorNum,"Terminated")
+	fmt.Println("Prozessor", prozessorNum, "Terminated")
 }
 
 func out(parameter string) {
@@ -353,7 +353,7 @@ func out(parameter string) {
 	}
 
 	ioList[number].setValue(a.value)
-	fmt.Println("On Prozessor",prozessorNum," the I/O", number, "has the value:", ioList[number].value)
+	fmt.Println("On Prozessor", prozessorNum, " the I/O", number, "has the value:", ioList[number].value)
 	if debug {
 		fmt.Println("OUT Done")
 		fmt.Println("Inhalt von I/O", number, "is", ioList[number].value)
