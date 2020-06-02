@@ -10,6 +10,7 @@ import(
 	"strconv"
 	"./HAL"
 	"sync"
+	"time"
 )
 
 func main() {
@@ -20,7 +21,7 @@ func main() {
 	d := flag.Bool("debug", false, "enables debug output")
 	input := flag.String("input", "", "The HAL-OS Config File")
 	flag.Parse()
-	programs, cOne, cTwo, err := readConfFile(input)
+	programs, _, _, err := readConfFile(input)
 	fmt.Println(programs)
 	if err != nil {
 		fmt.Println(err)
@@ -30,22 +31,31 @@ func main() {
 	buffer := make(chan string, 4)
 	var blockInput int
 	var blockOutput int
-	fmt.Println(len(programs))
-	for i := 0; i <= len(programs); i++ {
-		if i == 0 {
+	var counter int = 0
+	for i := 0; i <= len(programs)-1; i++ {
+		wg.Add(1)
+		//if its the first block, take input from stdin, if its not the first block read input from channel
+		if counter == 0 {
 			blockInput = 0
 		} else {
-			blockInput = cTwo[i]
+			blockInput = 2
 		}
-		blockOutput = cOne[i]
-		wg.Add(1)
-		go func() {
-			m := readProgramFile(programs[i+1])
-			fmt.Println(m)
-			HAL.HalStart(m, *d, buffer, &wg, blockInput, blockOutput)
-		}()
-		wg.Wait()
+		//if its the last block, output to stdout only, if its not the last block output to stdout and to the channel
+		if counter == len(programs)-1 {
+			blockOutput = 0
+		} else {
+			blockOutput = 2
+		}
+		counter++
+		println(counter)
+		m := readProgramFile(programs[counter])
+		//fmt.Println("go func")
+		//fmt.Println("input:", blockInput, "output", blockOutput)
+		go HAL.HalStart(m, *d, buffer, &wg, blockInput, blockOutput)
+		time.Sleep(1 * time.Millisecond)
 	}
+	wg.Wait()
+	close(buffer)
 	fmt.Println("this is the end of the program!")
 }
 
@@ -54,7 +64,7 @@ func readProgramFile(input string) map[int]string {
 	m = make(map[int]string)
 	file, err := os.Open(input)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(err, input, file)
 	}
 	defer file.Close()
 
@@ -70,7 +80,7 @@ func readProgramFile(input string) map[int]string {
 	}
 
 	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
+		fmt.Println(err, file, input)
 	}
 
 	return m

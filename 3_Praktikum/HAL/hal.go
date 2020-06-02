@@ -28,6 +28,7 @@ func (r *register) setValue(newVal float64) {
 	r.value = newVal
 }
 
+//in and output type based on number
 type inAndOut struct {
 	value  float64
 	number int
@@ -194,10 +195,12 @@ func infunc(parameter string, inputType int, buffer chan string) {
 	reader := bufio.NewReader(os.Stdin)
 	var input string
 	if inputType == 0 {
+		//take input from stdin
 		fmt.Println("Provide input:")
 		input, _ = reader.ReadString('\n')
 		input = strings.Replace(input, "\n", "", -1)
 	} else if inputType == 2 {
+		//read input from channel
 		input = <-buffer
 	} else {
 		fmt.Println("not a valid input,", inputType)
@@ -250,9 +253,15 @@ func out(parameter string, outputType int, buffer chan string) {
 		fmt.Println("Inhalt von Akkumulator ist: ", a.value)
 	}
 	ioList[number].setValue(a.value)
-	fmt.Println("I/O", number, "has the value:", ioList[number].value)
 	strValue := fmt.Sprintf("%f", ioList[number].value)
-	buffer <- strValue
+	if outputType == 0 {
+		//only stdout
+		fmt.Println("I/O", number, "has the value:", ioList[number].value)
+	} else {
+		//stdout and channel
+		fmt.Println("I/O", number, "has the value:", ioList[number].value)
+		buffer <- strValue
+	}
 	if debug {
 		fmt.Println("OUT Done")
 		fmt.Println("Inhalt von I/O", number, "is", ioList[number].value)
