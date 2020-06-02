@@ -30,7 +30,7 @@ func main() {
 	// Create the channels
 	var listOfChannels []createdChannels
 	for _, connection := range confStructure.HALVerbindungen {
-		tmpChannel := make(chan float64,4)
+		tmpChannel := make(chan float64, 4)
 		tmpCreatedChannels := createdChannels{connection.From.Prozessor, connection.From.Channel, connection.To.Prozessor, connection.To.Channel, tmpChannel}
 		listOfChannels = append(listOfChannels, tmpCreatedChannels)
 	}
@@ -50,7 +50,7 @@ func main() {
 		}
 		//fmt.Println("Prozessor: ", prozessor.Prozessor, "\nConnections:\n", prozessorConnections, "\n")
 		wg.Add(1)
-		HAL.HalStart(instructions, *debugModus, prozessor.Prozessor, prozessorConnections, &wg)
+		go HAL.HalStart(instructions, *debugModus, prozessor.Prozessor, prozessorConnections, &wg)
 	}
 	wg.Wait()
 
