@@ -1,13 +1,14 @@
 package main
 
-import(
-	"fmt"
-	"flag"
+import (
 	"bufio"
+	"flag"
+	"fmt"
 	"log"
 	"os"
-	"strings"
 	"strconv"
+	"strings"
+
 	"./HAL"
 )
 

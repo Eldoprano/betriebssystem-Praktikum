@@ -1,0 +1,52 @@
+{
+  "HALProzessoren": [
+    {
+      "prozessor":0,
+      "directory": "p0.hal"
+    },
+    {
+      "prozessor":1,
+      "directory": "p1.hal"
+    },
+    {
+      "prozessor":2,
+      "directory": "p2.hal"
+    },
+    {
+      "prozessor":3,
+      "directory": "p3.hal"
+    }
+  ],
+  "HALVerbindungen": [
+    {
+      "from": {
+        "prozessor":0,
+        "channel":3
+      },
+      "to": {
+        "prozessor":1,
+        "channel":2
+      }
+    },
+    {
+      "from":{
+        "prozessor": 1,
+        "channel":3
+      },
+      "to": {
+        "prozessor":2,
+        "channel":2
+      }
+    },
+    {
+      "from":{
+        "prozessor": 2,
+        "channel":3
+      },
+      "to": {
+        "prozessor":3,
+        "channel":2
+      }
+    }
+  ]
+}
