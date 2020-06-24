@@ -5,4 +5,4 @@ USERNAME="ubuntu"
 
 # Calls SFTP one-liner 
 # Source: https://stackoverflow.com/questions/16721891/single-line-sftp-from-terminal
-sftp $USERNAME@$IP_ADDRESS:$FILE_TO_SEND $FILE_TO_SEND
+sftp $USERNAME@$IP_ADDRESS:$FILE_TO_SEND "."
